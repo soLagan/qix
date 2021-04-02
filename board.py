@@ -7,7 +7,9 @@ class board():
         self.captured = []      # Contains coordinates of 'captured' space
         self.uncaptured = []    # Contains coordinates of 'uncaptured' space
         self.edges = []         # Contains coordinates of all traversal space
+        self.edgesBuffer = []   # Contains edges on Current push
         self.entities = []      # Contains all boardObjects in play
+
 
     def gameStart(self):
         
@@ -26,8 +28,15 @@ class board():
     def getUncaptured(self):
         return self.uncaptured
 
-    def updateEdge(self, coor):
-        self.edges.append(coor)
+
+    def updateEdges(self):
+        for i in self.edgesBuffer:
+            self.edges.append(i)
+        self.edgesBuffer = []
+        return
+
+    def updateBuffer(self, coor):
+        self.edgesBuffer.append(coor)
         return
 
     def validateMove(self):

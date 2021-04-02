@@ -16,7 +16,7 @@ pygame.display.update()
 
 incr = 1
 
-print("Creating Board")
+print("Creating Board...")
 
 fuckingBoard = board()
 fuckingBoard.gameStart()
@@ -36,20 +36,26 @@ while running:
 
     keys = pygame.key.get_pressed()
 
-    if (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP])) in fuckingBoard.getEdges():
+    if (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP])) in fuckingBoard.edges:
 
         player.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT])
         player.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) 
         fuckingBoard.getMarker().updateState(False)
-    if (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP])) in fuckingBoard.getUncaptured():
+
+    if fuckingBoard.getMarker().getState() == False and fuckingBoard.edgesBuffer:
+        fuckingBoard.updateEdges()
+
+    if (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP])) in fuckingBoard.uncaptured:
 
         player.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT])
         player.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP])
-        fuckingBoard.updateEdge((player.x,player.y))
+        fuckingBoard.updateBuffer((player.x,player.y))
+        fuckingBoard.getUncaptured().remove((player.x,player.y))
         fuckingBoard.getMarker().updateState(True)
 
+
     fuckingBoard.getMarker().updateLocation(player.x, player.y)
-    #print(fuckingBoard.getMarker().getLocation(), fuckingBoard.getMarker().getState())
+    print(fuckingBoard.getMarker().getLocation(), fuckingBoard.getMarker().getState())
 
     mysurface.fill(0)
     for coor in fuckingBoard.getEdges():
