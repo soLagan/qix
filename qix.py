@@ -49,16 +49,18 @@ while running:
 
         player.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT])
         player.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP])
-        fuckingBoard.updateBuffer((player.x,player.y))
-        fuckingBoard.getUncaptured().remove((player.x,player.y))
+        fuckingBoard.edgesBuffer.append((player.x,player.y))
+        fuckingBoard.uncaptured.remove((player.x,player.y))
         fuckingBoard.getMarker().updateState(True)
 
 
     fuckingBoard.getMarker().updateLocation(player.x, player.y)
-    print(fuckingBoard.getMarker().getLocation(), fuckingBoard.getMarker().getState())
+    #print(fuckingBoard.getMarker().getLocation(), fuckingBoard.getMarker().getState())
 
     mysurface.fill(0)
-    for coor in fuckingBoard.getEdges():
+    for coor in fuckingBoard.edges:
         pygame.draw.rect(mysurface, pygame.Color(255,255,255),pygame.Rect(coor[0],coor[1],1,1))
+    for coor in fuckingBoard.edgesBuffer:
+        pygame.draw.rect(mysurface, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
     pygame.draw.rect(mysurface, pygame.Color(0,255,255),player)
     pygame.display.flip()

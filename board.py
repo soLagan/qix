@@ -22,21 +22,11 @@ class board():
 
         return
 
-    def getEdges(self):
-        return self.edges
-
-    def getUncaptured(self):
-        return self.uncaptured
-
 
     def updateEdges(self):
         for i in self.edgesBuffer:
             self.edges.append(i)
         self.edgesBuffer = []
-        return
-
-    def updateBuffer(self, coor):
-        self.edgesBuffer.append(coor)
         return
 
     def validateMove(self):
