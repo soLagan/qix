@@ -23,7 +23,7 @@ board.createEntities(1)
 
 print("Start!")
 
-player = pygame.Rect(320,439,8,8)
+player = pygame.Rect(320,439,25,25)
 
 running = True
 while running:
@@ -39,8 +39,8 @@ while running:
     
     # Check if it can move on an edge
     if moveVector in board.edges:
-        player.x += moveVector[0]
-        player.y += moveVector[1]
+        player.x = moveVector[0]
+        player.y = moveVector[1]
 
         board.getMarker().updateState(False)
         # Add all pixels that appear in that buffer and add it to captured space
@@ -49,8 +49,8 @@ while running:
         board.updateEdges()
 
     if moveVector in board.uncaptured:
-        player.x += moveVector[0]
-        player.y += moveVector[1]
+        player.x = moveVector[0]
+        player.y = moveVector[1]
 
         board.edgesBuffer.append((player.x,player.y))
         board.uncaptured.remove((player.x,player.y))
@@ -67,5 +67,6 @@ while running:
     for coor in board.edgesBuffer:
         pygame.draw.rect(mysurface, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
     
-    pygame.draw.rect(mysurface, pygame.Color(0,255,255),player)
+    # print("I AM HERE")
+    pygame.draw.rect(mysurface, pygame.Color(0,255,255) , player)
     pygame.display.flip()
