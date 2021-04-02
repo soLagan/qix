@@ -5,31 +5,62 @@ import pygame.color;
 import pygame.locals;
 import pygame.event;
 import sys
+from board import board
+from boardObjects import marker, qix, sparx
 
 pygame.display.init()
 fps = 30
 fpsclock=pygame.time.Clock()
-mysurface = pygame.display.set_mode(size=(800, 600), flags=0, depth=0, display=0, vsync=0)
+mysurface = pygame.display.set_mode(size=(640, 480), flags=0, depth=0, display=0, vsync=0)
 pygame.display.update()
 
-x = 10
-y = 10
-incr = 10
-neato = pygame.Rect(x,y,10,10)
-pygame.draw.rect(mysurface, pygame.Color(0,255,255),neato)
+incr = 1
+
+print("Creating Board...")
+
+fuckingBoard = board()
+fuckingBoard.gameStart()
+fuckingBoard.createEntities(1)
+
+print("Start!")
+
+player = pygame.Rect(320,439,8,8)
 
 running = True
 while running:
-    fpsclock.tick(30)
+    fpsclock.tick(120)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False
 
     keys = pygame.key.get_pressed()
-    neato.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * incr
-    neato.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * incr
+
+    if (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP])) in fuckingBoard.edges:
+
+        player.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT])
+        player.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) 
+        fuckingBoard.getMarker().updateState(False)
+
+    if fuckingBoard.getMarker().getState() == False and fuckingBoard.edgesBuffer:
+        fuckingBoard.updateEdges()
+
+    if (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP])) in fuckingBoard.uncaptured:
+
+        player.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT])
+        player.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP])
+        fuckingBoard.edgesBuffer.append((player.x,player.y))
+        fuckingBoard.uncaptured.remove((player.x,player.y))
+        fuckingBoard.getMarker().updateState(True)
+
+
+    fuckingBoard.getMarker().updateLocation(player.x, player.y)
+    #print(fuckingBoard.getMarker().getLocation(), fuckingBoard.getMarker().getState())
 
     mysurface.fill(0)
-    pygame.draw.rect(mysurface, pygame.Color(0,255,255),neato)
+    for coor in fuckingBoard.edges:
+        pygame.draw.rect(mysurface, pygame.Color(255,255,255),pygame.Rect(coor[0],coor[1],1,1))
+    for coor in fuckingBoard.edgesBuffer:
+        pygame.draw.rect(mysurface, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
+    pygame.draw.rect(mysurface, pygame.Color(0,255,255),player)
     pygame.display.flip()
