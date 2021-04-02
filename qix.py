@@ -16,9 +16,13 @@ pygame.display.update()
 
 incr = 1
 
+print("Creating Board")
+
 fuckingBoard = board()
 fuckingBoard.gameStart()
 fuckingBoard.createEntities(1)
+
+print("Start!")
 
 player = pygame.Rect(320,439,8,8)
 
@@ -31,11 +35,21 @@ while running:
             running = False
 
     keys = pygame.key.get_pressed()
-    player.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT])
-    player.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) 
+
+    if (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP])) in fuckingBoard.getEdges():
+
+        player.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT])
+        player.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) 
+        fuckingBoard.getMarker().updateState(False)
+    if (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP])) in fuckingBoard.getUncaptured():
+
+        player.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT])
+        player.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP])
+        fuckingBoard.updateEdge((player.x,player.y))
+        fuckingBoard.getMarker().updateState(True)
 
     fuckingBoard.getMarker().updateLocation(player.x, player.y)
-    print(fuckingBoard.getMarker().getLocation())
+    #print(fuckingBoard.getMarker().getLocation(), fuckingBoard.getMarker().getState())
 
     mysurface.fill(0)
     for coor in fuckingBoard.getEdges():

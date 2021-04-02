@@ -12,13 +12,23 @@ class board():
     def gameStart(self):
         
         # Construct mainBoard & starting edges of traversal
-        self.mainBoard = [ (x,y) for x in range(640) for y in range(480) if 120 < x < 520 and 40 < y < 440]
-        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 121 or lmao[0] == 519) or lmao[1] == 41 or lmao[1] == 439]
+        self.mainBoard = [ (x,y) for x in range(640) for y in range(480) if 120 < x < 520 and 40 < y < 440 ]
+        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 121 or lmao[0] == 519) or lmao[1] == 41 or lmao[1] == 439 ]
+
+        self.captured = self.edges
+        self.uncaptured = [losing for losing in self.mainBoard if losing not in self.edges] # This process takes a while
 
         return
 
     def getEdges(self):
         return self.edges
+
+    def getUncaptured(self):
+        return self.uncaptured
+
+    def updateEdge(self, coor):
+        self.edges.append(coor)
+        return
 
     def validateMove(self):
         return
