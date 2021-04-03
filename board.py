@@ -1,5 +1,6 @@
 from boardObjects import Marker, Qix, Sparx
 import random # for createEntities, assign enemies random but valid starting coordinates
+import copy
 
 class Vertex():
     def __init__(self):
@@ -25,14 +26,14 @@ class Board():
         self.edges = []         # Contains coordinates of all traversal space
         self.edgesBuffer = []   # Contains edges on Current push
         self.entities = []      # Contains all boardObjects in play
+        self.capturedBuffer = []
 
     def gameStart(self):
         
         # Construct mainBoard & starting edges of traversal
-        self.mainBoard = [ (x,y) for x in range(640) for y in range(480) if 120 < x < 520 and 40 < y < 440 ]
-        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 121 or lmao[0] == 519) or lmao[1] == 41 or lmao[1] == 439 ]
+        self.mainBoard = [ (x,y) for x in range(320) for y in range(200) if 110 < x < 210 and 50 < y < 150 ]
+        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 111 or lmao[0] == 209) or lmao[1] == 51 or lmao[1] == 149 ]
 
-        self.captured = self.edges
         self.uncaptured = [losing for losing in self.mainBoard if losing not in self.edges] # This process takes a while
 
         return
@@ -40,7 +41,40 @@ class Board():
     def updateEdges(self):
         for i in self.edgesBuffer:
             self.edges.append(i)
+
+
+        start = self.edgesBuffer[0]
+        end = self.edgesBuffer[1]
+
+        self.fillCapture(start[0]-1, start[1])
+
+        for i in self.capturedBuffer:
+            self.captured.append(i)
+        self.capturedBuffer = []
         self.edgesBuffer = []
+
+
+
+
+
+        return
+
+    def fillCapture(self, x,y):
+        self.capturedBuffer.append((x,y))
+
+        for coor in self.capturedBuffer:
+            if (coor[0]+1,coor[1])  in self.uncaptured and (coor[0]+1,coor[1]) not in self.capturedBuffer:
+                self.capturedBuffer.append((coor[0]+1,coor[1]))
+                self.uncaptured.remove((coor[0]+1,coor[1]))
+            if (coor[0]-1,coor[1])  in self.uncaptured and (coor[0]-1,coor[1]) not in self.capturedBuffer:
+                self.capturedBuffer.append((coor[0]-1,coor[1]))
+                self.uncaptured.remove((coor[0]-1,coor[1]))
+            if (coor[0],coor[1]+1)  in self.uncaptured and (coor[0],coor[1]+1) not in self.capturedBuffer:
+                self.capturedBuffer.append((coor[0],coor[1]+1))
+                self.uncaptured.remove((coor[0],coor[1]+1))
+            if (coor[0],coor[1]-1)  in self.uncaptured and (coor[0],coor[1]-1) not in self.capturedBuffer:
+                self.capturedBuffer.append((coor[0],coor[1]-1))
+                self.uncaptured.remove((coor[0],coor[1]-1))
         return
 
     def validateMove(self):
