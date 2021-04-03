@@ -1,4 +1,4 @@
-class boardObject():
+class Object():
     def __init__(self, xPos, yPos, speed):
         self.xPos = xPos
         self.yPos = yPos
@@ -18,7 +18,7 @@ class boardObject():
     def collide(self): # if collision happens?
         return
 
-class marker(boardObject):
+class Marker(Object):
     def __init__(self, xPos, yPos, speed, health, pushState):
         self.health = health
         self.pushState = pushState
@@ -28,6 +28,7 @@ class marker(boardObject):
         return self.pushState
 
     def updateState(self, state):
+        # Call `fillCapture`
         self.pushState = state
         return
 
@@ -38,12 +39,12 @@ class marker(boardObject):
         self.health -= 1
         return
 
-class sparx(boardObject):
+class Sparx(Object):
     def __init__(self, xPos, yPos, speed):
         super().__init__(xPos, yPos, speed)
 
 
-class qix(boardObject):
+class Qix(Object):
     def __init__(self, xPos, yPos, speed, orientation, directionOfTravel):
         self.orientation = orientation
         self.directionOfTravel = directionOfTravel
