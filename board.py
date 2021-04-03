@@ -1,7 +1,23 @@
-from boardObjects import marker, qix, sparx
+from boardObjects import Marker, Qix, Sparx
 import random # for createEntities, assign enemies random but valid starting coordinates
 
-class board():
+class Vertex():
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+
+class Edge():
+    def __init__(self):
+        self.start = None
+        self.end = None
+        self.next = None
+        self.previous = None
+
+    def addAfter(self, new):
+        pass
+        # Turn an incursion into a polygon and use it to take out points from uncaptured space
+
+class Board():
     def __init__(self):
         self.mainBoard = []     # Contains all possible coordinates entites can exist on
         self.captured = []      # Contains coordinates of 'captured' space
@@ -9,7 +25,6 @@ class board():
         self.edges = []         # Contains coordinates of all traversal space
         self.edgesBuffer = []   # Contains edges on Current push
         self.entities = []      # Contains all boardObjects in play
-
 
     def gameStart(self):
         
@@ -21,7 +36,6 @@ class board():
         self.uncaptured = [losing for losing in self.mainBoard if losing not in self.edges] # This process takes a while
 
         return
-
 
     def updateEdges(self):
         for i in self.edgesBuffer:
@@ -38,7 +52,7 @@ class board():
     def createEntities(self, level): # level determines number of enemy entities
 
         # Player wants to start at the middle bottom edge
-        player = marker(320, 439, 1, 5, False)  
+        player = Marker(320, 439, 1, 5, False)  
         self.entities.append(player)
 
         return
