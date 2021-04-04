@@ -31,22 +31,24 @@ class Board():
     def gameStart(self):
         
         # Construct mainBoard & starting edges of traversal
-        self.mainBoard = [ (x,y) for x in range(320) for y in range(200) if 110 < x < 210 and 50 < y < 150 ]
-        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 111 or lmao[0] == 209) or lmao[1] == 51 or lmao[1] == 149 ]
+        self.mainBoard = [ (x,y) for x in range(160) for y in range(100) if 40 < x < 120 and 10 < y < 90 ]
+        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 41 or lmao[0] == 119) or lmao[1] == 11 or lmao[1] == 89 ]
 
         self.uncaptured = [losing for losing in self.mainBoard if losing not in self.edges] # This process takes a while
 
         return
 
     def updateEdges(self):
+        avgX = 0
+        avgY = 0
         for i in self.edgesBuffer:
             self.edges.append(i)
+            avgX+= i[0]
+            avgY+= i[1]
+        avgX /= len(self.edgesBuffer)
+        avgY /= len(self.edgesBuffer)
 
-
-        start = self.edgesBuffer[0]
-        end = self.edgesBuffer[1]
-
-        self.fillCapture(start[0]-1, start[1])
+        self.fillCapture(int(avgX), int(avgY))
 
         for i in self.capturedBuffer:
             self.captured.append(i)
@@ -54,14 +56,12 @@ class Board():
         self.edgesBuffer = []
 
 
-
-
-
         return
 
     def fillCapture(self, x,y):
         self.capturedBuffer.append((x,y))
 
+        # This takes forever, so I changed the dimensions of the board to 40 by 40 and just scaled it up
         for coor in self.capturedBuffer:
             if (coor[0]+1,coor[1])  in self.uncaptured and (coor[0]+1,coor[1]) not in self.capturedBuffer:
                 self.capturedBuffer.append((coor[0]+1,coor[1]))

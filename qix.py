@@ -13,8 +13,12 @@ pygame.display.init()
 fps = 30
 fpsclock=pygame.time.Clock()
 mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
-resized = pygame.transform.scale(mysurface, (320, 200))
+resized = pygame.transform.scale(mysurface, (160, 100))
 pygame.display.update()
+
+
+# level = int(input("Enter the you the Level you wish to play [1-9]: "))
+# print("Entering Level {}...".format(level))
 
 print("Creating Board...")
 
@@ -24,7 +28,7 @@ board.createEntities(1)
 
 print("Start!")
 
-player = pygame.Rect(160,149,3,3)
+player = pygame.Rect(80,89,1,1)
 
 running = True
 while running:
@@ -71,9 +75,9 @@ while running:
     for coor in board.edgesBuffer:
         pygame.draw.rect(resized, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
     for coor in board.captured:
-        pygame.draw.rect(resized, pygame.Color(0,255,0),pygame.Rect(coor[0],coor[1],1,1))
+        pygame.draw.rect(resized, pygame.Color(210,105,30),pygame.Rect(coor[0],coor[1],1,1))
     
     # print("I AM HERE")
-    pygame.draw.rect(resized, pygame.Color(0,255,255) , player)
+    pygame.draw.rect(resized, pygame.Color(0,255,0) , player)
     mysurface.blit(pygame.transform.scale(resized, mysurface.get_rect().size), (0,0))
     pygame.display.flip()
