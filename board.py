@@ -18,13 +18,15 @@ class Edge():
         # Turn an incursion into a polygon and use it to take out points from uncaptured space
 
 class Board():
-    def __init__(self):
+    def __init__(self, xPos, yPos, speed, health, pushState):
         self.mainBoard = []     # Contains all possible coordinates entites can exist on
         self.captured = []      # Contains coordinates of 'captured' space
         self.uncaptured = []    # Contains coordinates of 'uncaptured' space
         self.edges = []         # Contains coordinates of all traversal space
         self.edgesBuffer = []   # Contains edges on Current push
         self.entities = []      # Contains all boardObjects in play
+        self.theMarker = Marker(xPos, yPos, speed, health, pushState)
+        self.entities.append(self.theMarker)
 
     def gameStart(self):
         
@@ -52,8 +54,7 @@ class Board():
     def createEntities(self, level): # level determines number of enemy entities
 
         # Player wants to start at the middle bottom edge
-        player = Marker(320, 439, 1, 5, False)  
-        self.entities.append(player)
+        # player = Marker(320, 439, 1, 5, False)  
 
         return
 
