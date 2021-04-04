@@ -31,9 +31,9 @@ class Board():
     def gameStart(self):
         
         # Construct mainBoard & starting edges of traversal
-        self.mainBoard = [ (x,y) for x in range(160) for y in range(100) if 40 < x < 120 and 10 < y < 90 ]
-        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 41 or lmao[0] == 119) or lmao[1] == 11 or lmao[1] == 89 ]
-
+        self.mainBoard = [ (x,y) for x in range(160) for y in range(100) if 35 < x < 125 and 5 < y < 95 ]
+        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 36 or lmao[0] == 124) or lmao[1] == 6 or lmao[1] == 94 ]
+        self.playableEdge = copy.deepcopy(self.edges)
         self.uncaptured = [losing for losing in self.mainBoard if losing not in self.edges] # This process takes a while
 
         return
@@ -50,13 +50,18 @@ class Board():
 
         self.fillCapture(int(avgX), int(avgY))
 
+
         for i in self.capturedBuffer:
             self.captured.append(i)
+
         self.capturedBuffer = []
         self.edgesBuffer = []
+
+
         percentage = ((len(self.captured) + len(self.edges)) / len(self.mainBoard))*100
-        print("{:.2f}% of board captured.".format(percentage))
+        print("{:.1f}% of board captured.".format(percentage))
         return
+
 
     def fillCapture(self, x,y):
         self.capturedBuffer.append((x,y))

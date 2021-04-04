@@ -16,7 +16,6 @@ mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
 resized = pygame.transform.scale(mysurface, (160, 100))
 pygame.display.update()
 
-
 # level = int(input("Enter the you the Level you wish to play [1-9]: "))
 # print("Entering Level {}...".format(level))
 
@@ -28,7 +27,7 @@ board.createEntities(1)
 
 print("Start!")
 
-player = pygame.Rect(80,89,1,1)
+player = pygame.Rect(80,94,1,1)
 
 running = True
 while running:
@@ -56,7 +55,7 @@ while running:
     if not board.getMarker().getState() and board.edgesBuffer:
         board.updateEdges()
 
-    if moveVector in board.uncaptured:
+    if moveVector in board.uncaptured and (keys[K_SPACE] or board.getMarker().getState()):
         player.x = moveVector[0]
         player.y = moveVector[1]
 
@@ -69,7 +68,6 @@ while running:
 
     # Fill the background with black
     resized.fill(0)
-    
     for coor in board.edges:
         pygame.draw.rect(resized, pygame.Color(255,255,255),pygame.Rect(coor[0],coor[1],1,1))
     for coor in board.edgesBuffer:
