@@ -1,8 +1,8 @@
-from pygame.constants import K_x
+from pygame.constants import K_x, VIDEOEXPOSE, VIDEORESIZE
 import pygame.display;
 import time;
 import pygame.color;
-import pygame.locals;
+from pygame.locals import *
 import pygame.event;
 import sys
 
@@ -12,8 +12,12 @@ from boardObjects import Marker, Qix, Sparx
 pygame.display.init()
 fps = 30
 fpsclock=pygame.time.Clock()
-mysurface = pygame.display.set_mode(size=(640, 480), flags=0, depth=0, display=0, vsync=0)
+mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
+resized = pygame.transform.scale(mysurface, (160, 100))
 pygame.display.update()
+
+# level = int(input("Enter the you the Level you wish to play [1-9]: "))
+# print("Entering Level {}...".format(level))
 
 print("Creating Board...")
 
@@ -23,16 +27,19 @@ board.createEntities(1)
 
 print("Start!")
 
-player = pygame.Rect(320,439,25,25)
+player = pygame.Rect(80,94,1,1)
 
 running = True
 while running:
 
-    fpsclock.tick(120)
+    fpsclock.tick(30)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False
+        if event == VIDEORESIZE:
+            mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
+
 
     keys = pygame.key.get_pressed()
     moveVector = (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP]))
@@ -48,7 +55,7 @@ while running:
     if not board.getMarker().getState() and board.edgesBuffer:
         board.updateEdges()
 
-    if moveVector in board.uncaptured:
+    if moveVector in board.uncaptured and (keys[K_SPACE] or board.getMarker().getState()):
         player.x = moveVector[0]
         player.y = moveVector[1]
 
@@ -60,13 +67,15 @@ while running:
     board.getMarker().updateLocation(player.x, player.y)
 
     # Fill the background with black
-    mysurface.fill(0)
-    
+    resized.fill(0)
     for coor in board.edges:
-        pygame.draw.rect(mysurface, pygame.Color(255,255,255),pygame.Rect(coor[0],coor[1],1,1))
+        pygame.draw.rect(resized, pygame.Color(255,255,255),pygame.Rect(coor[0],coor[1],1,1))
     for coor in board.edgesBuffer:
-        pygame.draw.rect(mysurface, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
+        pygame.draw.rect(resized, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
+    for coor in board.captured:
+        pygame.draw.rect(resized, pygame.Color(210,105,30),pygame.Rect(coor[0],coor[1],1,1))
     
     # print("I AM HERE")
-    pygame.draw.rect(mysurface, pygame.Color(0,255,255) , player)
+    pygame.draw.rect(resized, pygame.Color(0,255,0) , player)
+    mysurface.blit(pygame.transform.scale(resized, mysurface.get_rect().size), (0,0))
     pygame.display.flip()

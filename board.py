@@ -1,5 +1,6 @@
 from boardObjects import Marker, Qix, Sparx
 import random # for createEntities, assign enemies random but valid starting coordinates
+import copy
 
 class Vertex():
     def __init__(self):
@@ -25,22 +26,60 @@ class Board():
         self.edges = []         # Contains coordinates of all traversal space
         self.edgesBuffer = []   # Contains edges on Current push
         self.entities = []      # Contains all boardObjects in play
+        self.capturedBuffer = []
 
     def gameStart(self):
         
         # Construct mainBoard & starting edges of traversal
-        self.mainBoard = [ (x,y) for x in range(640) for y in range(480) if 120 < x < 520 and 40 < y < 440 ]
-        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 121 or lmao[0] == 519) or lmao[1] == 41 or lmao[1] == 439 ]
-
-        self.captured = self.edges
+        self.mainBoard = [ (x,y) for x in range(160) for y in range(100) if 35 < x < 125 and 5 < y < 95 ]
+        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 36 or lmao[0] == 124) or lmao[1] == 6 or lmao[1] == 94 ]
+        self.playableEdge = copy.deepcopy(self.edges)
         self.uncaptured = [losing for losing in self.mainBoard if losing not in self.edges] # This process takes a while
 
         return
 
     def updateEdges(self):
+        avgX = 0
+        avgY = 0
         for i in self.edgesBuffer:
             self.edges.append(i)
+            avgX+= i[0]
+            avgY+= i[1]
+        avgX /= len(self.edgesBuffer)
+        avgY /= len(self.edgesBuffer)
+
+        self.fillCapture(int(avgX), int(avgY))
+
+
+        for i in self.capturedBuffer:
+            self.captured.append(i)
+
+        self.capturedBuffer = []
         self.edgesBuffer = []
+
+
+        percentage = ((len(self.captured) + len(self.edges)) / len(self.mainBoard))*100
+        print("{:.1f}% of board captured.".format(percentage))
+        return
+
+
+    def fillCapture(self, x,y):
+        self.capturedBuffer.append((x,y))
+
+        # This takes forever, so I changed the dimensions of the board to 40 by 40 and just scaled it up
+        for coor in self.capturedBuffer:
+            if (coor[0]+1,coor[1])  in self.uncaptured and (coor[0]+1,coor[1]) not in self.capturedBuffer:
+                self.capturedBuffer.append((coor[0]+1,coor[1]))
+                self.uncaptured.remove((coor[0]+1,coor[1]))
+            if (coor[0]-1,coor[1])  in self.uncaptured and (coor[0]-1,coor[1]) not in self.capturedBuffer:
+                self.capturedBuffer.append((coor[0]-1,coor[1]))
+                self.uncaptured.remove((coor[0]-1,coor[1]))
+            if (coor[0],coor[1]+1)  in self.uncaptured and (coor[0],coor[1]+1) not in self.capturedBuffer:
+                self.capturedBuffer.append((coor[0],coor[1]+1))
+                self.uncaptured.remove((coor[0],coor[1]+1))
+            if (coor[0],coor[1]-1)  in self.uncaptured and (coor[0],coor[1]-1) not in self.capturedBuffer:
+                self.capturedBuffer.append((coor[0],coor[1]-1))
+                self.uncaptured.remove((coor[0],coor[1]-1))
         return
 
     def validateMove(self):
