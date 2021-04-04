@@ -54,8 +54,8 @@ class Board():
             self.captured.append(i)
         self.capturedBuffer = []
         self.edgesBuffer = []
-
-
+        percentage = ((len(self.captured) + len(self.edges)) / len(self.mainBoard))*100
+        print("{:.2f}% of board captured.".format(percentage))
         return
 
     def fillCapture(self, x,y):
