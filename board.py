@@ -43,6 +43,7 @@ class Board():
         avgY = 0
         for i in self.edgesBuffer:
             self.edges.append(i)
+            self.playableEdge.append(i)
             avgX+= i[0]
             avgY+= i[1]
         avgX /= len(self.edgesBuffer)
@@ -50,6 +51,9 @@ class Board():
 
         self.fillCapture(int(avgX), int(avgY))
 
+        for i in self.edges:
+            if not self.checkIfEdge(i) and i in self.playableEdge:
+                self.playableEdge.remove(i)
 
         for i in self.capturedBuffer:
             self.captured.append(i)
@@ -61,6 +65,19 @@ class Board():
         percentage = ((len(self.captured) + len(self.edges)) / len(self.mainBoard))*100
         print("{:.1f}% of board captured.".format(percentage))
         return
+
+    def checkIfEdge(self, coor): # True = not isolated, False = Isolated
+
+        if (coor[0]+1,coor[1]+1)  in self.uncaptured:
+            return True
+        if (coor[0]-1,coor[1]+1)  in self.uncaptured:
+            return True
+        if (coor[0]-1,coor[1]-1)  in self.uncaptured :
+            return True
+        if (coor[0]+1,coor[1]-1)  in self.uncaptured :
+            return True
+
+        return False
 
 
     def fillCapture(self, x,y):

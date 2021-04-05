@@ -45,7 +45,7 @@ while running:
     moveVector = (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP]))
     
     # Check if it can move on an edge
-    if moveVector in board.edges:
+    if moveVector in board.playableEdge:
         player.x = moveVector[0]
         player.y = moveVector[1]
 
@@ -70,6 +70,10 @@ while running:
     resized.fill(0)
     for coor in board.edges:
         pygame.draw.rect(resized, pygame.Color(255,255,255),pygame.Rect(coor[0],coor[1],1,1))
+    for coor in board.playableEdge:
+        pygame.draw.rect(resized, pygame.Color(255,0,255),pygame.Rect(coor[0],coor[1],1,1))
+    for coor in board.uncaptured:
+        pygame.draw.rect(resized, pygame.Color(23,0,0),pygame.Rect(coor[0],coor[1],1,1))
     for coor in board.edgesBuffer:
         pygame.draw.rect(resized, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
     for coor in board.captured:
