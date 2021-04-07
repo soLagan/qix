@@ -28,7 +28,7 @@ class Marker(Object):
     def __init__(self, xPos, yPos, speed, health, pushState):
         self.health = health
         self.pushState = pushState
-        self.theRect = pygame.Rect(320,439,25,25)
+        self.theRect = pygame.Rect(80,94,1,1)
         super().__init__(xPos, yPos, speed)
 
 
