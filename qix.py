@@ -73,26 +73,5 @@ while running:
 
     board.getMarker().updateLocation(player.x, player.y)
 
-    # Fill the background with black
-    resized.fill(0)
+    board.draw()
 
-    for coor in board.edges:
-        pygame.draw.rect(resized, pygame.Color(255,255,255),pygame.Rect(coor[0],coor[1],1,1))
-    for coor in board.playableEdge: # Omit drawing playable edges in later iterations
-        pygame.draw.rect(resized, pygame.Color(255,0,255),pygame.Rect(coor[0],coor[1],1,1))
-    for coor in board.uncaptured:
-        pygame.draw.rect(resized, pygame.Color(23,0,0),pygame.Rect(coor[0],coor[1],1,1))
-    for coor in board.edgesBuffer:
-        pygame.draw.rect(resized, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
-    for coor in board.captured:
-        pygame.draw.rect(resized, pygame.Color(210,105,30),pygame.Rect(coor[0],coor[1],1,1))
-    
-    for entity in board.entities:
-        #print(entity.theRect)
-        pygame.draw.rect(resized, pygame.Color(0,255,255) , entity.theRect)
-
-    #pygame.draw.rect(resized, pygame.Color(0,255,0) , player)
-    mysurface.blit(pygame.transform.scale(resized, mysurface.get_rect().size), (0,0))   # Scale 160 by 100 board to 1280 by 800
-
-
-    pygame.display.flip()
