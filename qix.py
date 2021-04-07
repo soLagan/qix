@@ -24,13 +24,15 @@ pygame.display.update()
 
 print("Creating Board...")
 
-board = Board()
+board = Board(1,1,1,1,False)
 board.gameStart()
 board.createEntities(1)
 
 print("Start!")
 
-player = pygame.Rect(80,94,1,1)
+# player = pygame.Rect(320,439,25,25)
+player = board.theMarker.theRect
+board.getMarker().updateLocation(player.x, player.y)
 
 running = True
 while running:
@@ -52,14 +54,11 @@ while running:
         player.x = moveVector[0]
         player.y = moveVector[1]
 
-        board.getMarker().updateState(False)
-    
-    # Add all pixels that appear in that buffer and add it to captured space
-    if not board.getMarker().getState() and board.edgesBuffer:
-        board.updateEdges()     # Calls the fillCapture() method
-        board.updatePlayable()
-        board.printPercentage()
-        
+        board.getMarker().setIsPushing(False)
+        # Add all pixels that appear in that buffer and add it to captured space
+
+    if not board.getMarker().isPushing() and board.edgesBuffer:
+        board.updateEdges()
 
     # Press Spacebar in order start an incursion
     if moveVector in board.uncaptured and (keys[K_SPACE] or board.getMarker().getState()):
@@ -69,7 +68,7 @@ while running:
         board.edgesBuffer.append((player.x,player.y))
         board.uncaptured.remove((player.x,player.y))
 
-        board.getMarker().updateState(True)
+        board.getMarker().setIsPushing(True)
 
     board.getMarker().updateLocation(player.x, player.y)
 
@@ -87,7 +86,12 @@ while running:
     for coor in board.captured:
         pygame.draw.rect(resized, pygame.Color(210,105,30),pygame.Rect(coor[0],coor[1],1,1))
     
-    # print("I AM HERE")
+
     pygame.draw.rect(resized, pygame.Color(0,255,0) , player)
     mysurface.blit(pygame.transform.scale(resized, mysurface.get_rect().size), (0,0))   # Scale 160 by 100 board to 1280 by 800
+
+    #for entity in board.entities:
+        # print(entity.theRect)
+    #    pygame.draw.rect(mysurface, pygame.Color(0,255,255) , entity.theRect)
+
     pygame.display.flip()
