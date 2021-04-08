@@ -31,7 +31,6 @@ class Marker(Object):
         self.theRect = pygame.Rect(80,94,1,1)
         super().__init__(xPos, yPos, speed)
 
-
     def isPushing(self):
         return self.pushState
 
