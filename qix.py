@@ -31,8 +31,8 @@ board.createEntities(1)
 print("Start!")
 
 # player = pygame.Rect(320,439,25,25)
-player = board.theMarker.theRect
-board.getMarker().updateLocation(player.x, player.y)
+playerRect = board.getMarker().theRect
+board.getMarker().updateLocation(playerRect.x, playerRect.y)
 
 running = True
 while running:
@@ -47,12 +47,13 @@ while running:
 
 
     keys = pygame.key.get_pressed()
-    moveVector = (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP]))
+    # TODO: This vector should be either: (1,0), (0,1), or (0,0)
+    moveVector = (playerRect.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), playerRect.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP]))
     
     # Check if it can move on a valid edge
     if moveVector in board.playableEdge:
-        player.x = moveVector[0]
-        player.y = moveVector[1]
+        playerRect.x = moveVector[0]
+        playerRect.y = moveVector[1]
 
         board.getMarker().setIsPushing(False)
         # Add all pixels that appear in that buffer and add it to captured space
@@ -62,16 +63,15 @@ while running:
         board.updatePlayable()
 
     # Press Spacebar in order start an incursion
-    if moveVector in board.uncaptured and (keys[K_SPACE] or board.getMarker().isPushing()):
-        player.x = moveVector[0]
-        player.y = moveVector[1]
+    if moveVector in board.uncaptured and (keys[pygame.K_SPACE] or board.getMarker().isPushing()):
+        playerRect.x = moveVector[0]
+        playerRect.y = moveVector[1]
 
-        board.edgesBuffer.append((player.x,player.y))
-        board.uncaptured.remove((player.x,player.y))
+        board.edgesBuffer.append((playerRect.x, playerRect.y))
+        board.uncaptured.remove((playerRect.x, playerRect.y))
 
         board.getMarker().setIsPushing(True)
 
-    board.getMarker().updateLocation(player.x, player.y)
-
+    board.getMarker().updateLocation(playerRect.x, playerRect.y)
     board.draw()
 
