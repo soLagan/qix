@@ -31,6 +31,7 @@ class Board():
         self.entities = []          # Contains all boardObjects in play
 
         pygame.display.init()
+        pygame.display.set_caption('QIX')
         self.mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
         self.resized = pygame.transform.scale(self.mysurface, (160, 100))
 

@@ -33,7 +33,7 @@ player = board.getMarker()  # BoardObjects can only be accessed through the boar
 running = True
 while running:
 
-    fpsclock.tick(30)
+    fpsclock.tick(60)
 
     keys = pygame.key.get_pressed()
     moveVector = (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP]))
