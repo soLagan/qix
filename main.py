@@ -59,14 +59,14 @@ while running:
 
         player.setIsPushing(True)
 
-    player.updateLocation(player.x, player.y)
+    player.updateLocation(player.x, player.y) # Update stored location of player/marker, but don't touch the graphical object
 
-    board.draw()
+    board.draw() # draw all objects
 
-    for event in pygame.event.get():
+    for event in pygame.event.get(): # Check for quit event (closing window)
         if event.type == pygame.QUIT:
             running = False
             pygame.quit()
-        if event == VIDEORESIZE:
+        if event == VIDEORESIZE: # Check for resize
             mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
 
