@@ -7,44 +7,33 @@ import pygame.event;
 import sys
 
 from board import Board
-from boardObjects import Marker, Qix, Sparx
 
-pygame.display.init()
 fps = 30
 fpsclock=pygame.time.Clock()
 
-# Surface drawn on is 160 by 100 pixels, scaled to 1280 by 800 pixels
-mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
-resized = pygame.transform.scale(mysurface, (160, 100))
+# To be removed, waiting on UI elements to be implemented first
+# pygame.display.init()
+# mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
+# resized = pygame.transform.scale(mysurface, (160, 100))
+# pygame.display.update()
 
-pygame.display.update()
-
-# level = int(input("Enter the you the Level you wish to play [1-3]: "))
+level = 4
+# level = int(input("Enter the you the Level you wish to play [1-4]: "))
 # print("Entering Level {}...".format(level))
 
 print("Creating Board...")
 
-board = Board(80,94,1,1,False)
-board.gameStart()
-board.createEntities(1)
+board = Board()
+board.gameStart(level)  # Calls createEntities
 
 print("Start!")
 
-# player = pygame.Rect(320,439,25,25)
-player = board.theMarker.theRect
-board.getMarker().updateLocation(player.x, player.y)
+player = board.getMarker()  # BoardObjects can only be accessed through the board
 
 running = True
 while running:
 
     fpsclock.tick(30)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            running = False
-        if event == VIDEORESIZE:
-            mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
-
 
     keys = pygame.key.get_pressed()
     moveVector = (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP]))
@@ -53,8 +42,7 @@ while running:
     if moveVector in board.playableEdge:
         player.x = moveVector[0]
         player.y = moveVector[1]
-
-        board.getMarker().setIsPushing(False)
+        player.setIsPushing(False)
         # Add all pixels that appear in that buffer and add it to captured space
 
     if not board.getMarker().isPushing() and board.edgesBuffer:
@@ -62,16 +50,23 @@ while running:
         board.updatePlayable()
 
     # Press Spacebar in order start an incursion
-    if moveVector in board.uncaptured and (keys[K_SPACE] or board.getMarker().isPushing()):
+    if moveVector in board.uncaptured and (keys[K_SPACE] or player.isPushing()):
         player.x = moveVector[0]
         player.y = moveVector[1]
 
         board.edgesBuffer.append((player.x,player.y))
         board.uncaptured.remove((player.x,player.y))
 
-        board.getMarker().setIsPushing(True)
+        player.setIsPushing(True)
 
-    board.getMarker().updateLocation(player.x, player.y)
+    player.updateLocation(player.x, player.y)
 
     board.draw()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+            pygame.quit()
+        if event == VIDEORESIZE:
+            mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
 
