@@ -2,20 +2,25 @@ from boardObjects import Marker, Qix, Sparx
 import pygame
 import copy
 
+# NOTE: USE.
 class Vertex():
     def __init__(self):
         self.x = 0
         self.y = 0
 
 class Edge():
-    def __init__(self):
-        self.start = None
-        self.end = None
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
         self.next = None
         self.previous = None
 
     def addAfter(self, new):
         pass
+
+    def getMovementVector(self):
+        if self.start[0] == self.end[0]: return (0,1)
+        return (1,0)
         # Turn an incursion into a polygon and use it to take out points from uncaptured space
 
 class Board():
@@ -31,6 +36,16 @@ class Board():
         self.entities = []      # Contains all boardObjects in play
         self.theMarker = Marker(xPos, yPos, speed, health, pushState)
         self.entities.append(self.theMarker)
+        self.firstEdgeBuffer = None
+
+        initialPoints = [(36,6), (36,94), (124, 94), (124,6)]
+
+        # Initialise four corners
+        self.firstEdge = Edge(initialPoints[0], initialPoints[1])
+        self.firstEdge.next = Edge(initialPoints[1], initialPoints[2])
+        self.firstEdge.next.next = Edge(initialPoints[2], initialPoints[3])
+        self.firstEdge.next.next.next = Edge(initialPoints[3], initialPoints[0])
+        self.firstEdge.next.next.next.next = self.firstEdge
 
         pygame.display.init()
         self.mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
@@ -89,7 +104,6 @@ class Board():
                 self.capturedBuffer.append((coor[0],coor[1]-1))
                 self.uncaptured.remove((coor[0],coor[1]-1))
 
-
         for i in self.capturedBuffer:
             self.captured.append(i)
 
@@ -132,7 +146,7 @@ class Board():
         return
 
     def getMarker(self):
-        return self.entities[0]
+        return self.theMarker
 
     def createEntities(self, level): # level determines number of enemy entities
 
@@ -147,19 +161,30 @@ class Board():
     def draw(self):
         self.resized.fill(0)
 
-        for coor in self.edges:
-            pygame.draw.rect(self.resized, pygame.Color(255,255,255),pygame.Rect(coor[0],coor[1],1,1))
-        for coor in self.playableEdge: # Omit drawing playable edges in later iterations
-            pygame.draw.rect(self.resized, pygame.Color(255,0,255),pygame.Rect(coor[0],coor[1],1,1))
-        for coor in self.uncaptured:
-            pygame.draw.rect(self.resized, pygame.Color(23,0,0),pygame.Rect(coor[0],coor[1],1,1))
-        for coor in self.edgesBuffer:
-            pygame.draw.rect(self.resized, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
-        for coor in self.captured:
-            pygame.draw.rect(self.resized, pygame.Color(210,105,30),pygame.Rect(coor[0],coor[1],1,1))
+        # Iterate through the linked edges
+        edge = self.firstEdge
         
+        pygame.draw.line(self.resized, pygame.Color(210,105,30), edge.start, edge.end)
+        edge = edge.next
+        while edge != self.firstEdge:
+            pygame.draw.line(self.resized, pygame.Color(210,105,30), edge.start, edge.end)
+            edge = edge.next
+
+        edge = self.firstEdge
+        
+        pygame.draw.line(self.resized, pygame.Color(210,105,30), edge.start, edge.end)
+        
+        edge = self.firstEdgeBuffer
+        while edge != self.edgesBuffer:
+            if not edge: break
+            if edge.start and edge.end:
+                pygame.draw.line(self.resized, pygame.Color(255,255,255), edge.start, edge.end)
+            
+            if not edge.next:
+                break
+            edge = edge.next
+
         for entity in self.entities:
-            #print(entity.theRect)
             pygame.draw.rect(self.resized, pygame.Color(0,255,255) , entity.theRect)
 
         #pygame.draw.rect(resized, pygame.Color(0,255,0) , player)
@@ -171,4 +196,5 @@ class Board():
         return
 
     def updateLocations(self):
+
         return
