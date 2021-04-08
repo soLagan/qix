@@ -10,7 +10,6 @@ class Object():
     def updateLocation(self, x, y):
         self.x = x
         self.y = y
-        return
     
     def getLocation(self):
         return (self.x, self.y)
@@ -30,6 +29,13 @@ class Marker(Object):
         self.pushState = pushState
         self.theRect = pygame.Rect(80,94,1,1)
         super().__init__(xPos, yPos, speed)
+
+    def updateLocation(self, x, y):
+        super().updateLocation(x, y)
+
+        # Update the position of the rect
+        self.theRect.x = x
+        self.theRect.y = y
 
     def isPushing(self):
         return self.pushState
