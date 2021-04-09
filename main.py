@@ -5,6 +5,9 @@ import pygame.color;
 from pygame.locals import *
 import pygame.event;
 import sys
+import math
+import copy
+import random
 
 from board import Board
 
@@ -12,61 +15,184 @@ fps = 30
 fpsclock=pygame.time.Clock()
 
 # To be removed, waiting on UI elements to be implemented first
-# pygame.display.init()
-# mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
-# resized = pygame.transform.scale(mysurface, (160, 100))
+
 # pygame.display.update()
 
-level = 4
-# level = int(input("Enter the you the Level you wish to play [1-4]: "))
-# print("Entering Level {}...".format(level))
+def main():
+    pygame.display.init()
+    mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
+    resized = pygame.transform.scale(mysurface, (160, 100))
+    pygame.display.update()
+    level = 4
 
-print("Creating Board...")
+    # level = int(input("Enter the you the Level you wish to play [1-4]: "))
+    # print("Entering Level {}...".format(level))
 
-board = Board()
-board.gameStart(level)  # Calls createEntities
+    print("Creating Board...")
 
-print("Start!")
+    board = Board()
+    board.gameStart(level)  # Calls createEntities
 
-player = board.getMarker()  # BoardObjects can only be accessed through the board
+    print("Start!")
 
-running = True
-while running:
+    player = board.getMarker()  # BoardObjects can only be accessed through the board
 
-    fpsclock.tick(60)
+    running = True
+    while running:
 
-    keys = pygame.key.get_pressed()
-    moveVector = (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP]))
+        fpsclock.tick(30)
+
+        keys = pygame.key.get_pressed()
+        moveVector = (player.x + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]), player.y + (keys[pygame.K_DOWN] - keys[pygame.K_UP]))
+        
+        # Check if it can move on a valid edge
+        if moveVector in board.playableEdge:
+            player.x = moveVector[0]
+            player.y = moveVector[1]
+            player.setIsPushing(False)
+            # Add all pixels that appear in that buffer and add it to captured space
+
+        if not board.getMarker().isPushing() and board.edgesBuffer:
+            board.updateEdges()
+            board.updatePlayable()
+
+        # Press Spacebar in order start an incursion
+        if moveVector in board.uncaptured and (keys[K_SPACE] or player.isPushing()):
+            player.x = moveVector[0]
+            player.y = moveVector[1]
+
+            board.edgesBuffer.append((player.x,player.y))
+            board.uncaptured.remove((player.x,player.y))
+
+            player.setIsPushing(True)
+
+
+        # Sparx Movement
+
+        # Sparx 1
+        if level >= 2:
+            sparx = board.getSparx1()
+            sparx.generateMoveVectors()
+            moveList = []
+
+            for moveVector in sparx.possibleMoves:
+                prevX = copy.deepcopy(sparx.x)
+                prevY = copy.deepcopy(sparx.y)
+
+                if moveVector in sparx.tail:
+                    continue
+
+                sparx.updateLocation(moveVector[0], moveVector[1])
+
+                touchingEdge = currentEdge(sparx,board)
+
+                if not touchingEdge:
+                    sparx.updateLocation(prevX, prevY)
+                else:
+                    moveList.append(moveVector)
+            print(moveList)
+            moveVector = random.choice(moveList)  
+            sparx.updateTail((moveVector[0], moveVector[1]))
+            sparx.resetMoveVectors()
+
+
+        # Sparx 2
+        if level >= 3:
+            sparx = board.getSparx2()
+            sparx.generateMoveVectors()
+            moveList = []
+
+            for moveVector in sparx.possibleMoves:
+                prevX = copy.deepcopy(sparx.x)
+                prevY = copy.deepcopy(sparx.y)
+
+                if moveVector in sparx.tail:
+                    continue
+
+                sparx.updateLocation(moveVector[0], moveVector[1])
+
+                touchingEdge = currentEdge(sparx,board)
+
+                if not touchingEdge:
+                    sparx.updateLocation(prevX, prevY)
+                else:
+                    moveList.append(moveVector)
+
+            moveVector = random.choice(moveList)  
+            sparx.updateTail((moveVector[0], moveVector[1]))
+            sparx.resetMoveVectors()
+
+
+        # Qix
+        if level == 4:
+            qix = board.getQix()
+            qix.generateMoveVectors()
+            moveList = []
+
+            for moveVector in qix.possibleMoves:
+
+                qix.updateLocation(moveVector[0], moveVector[1])
+                touchingEdge = currentEdge(qix, board)
+
+                if not touchingEdge:
+                    moveList.append(moveVector)
+
+            moveVector = random.choice(moveList)
+
+            qix.updateLocation(moveVector[0], moveVector[1])
+            qix.resetMoveVectors()
+
+
+        player.updateLocation(player.x, player.y)
+
+        board.draw()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+            if event == VIDEORESIZE:
+                mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
+
+
+def limitVectorDirection(vector):
+    """
+    Converts a vector to (+-1,0), (0,+-1), or (0,0).
+        Assumption: The input vector consists of two numerical elements.
+        Returns: A tuple in the form: (val, val)
+    """
+    if abs(vector[0]) == 1:
+        return (math.copysign(1, vector[0]), 0)
+    elif abs(vector[1]) == 1:
+        return (0, math.copysign(1, vector[1]))
     
-    # Check if it can move on a valid edge
-    if moveVector in board.playableEdge:
-        player.x = moveVector[0]
-        player.y = moveVector[1]
-        player.setIsPushing(False)
-        # Add all pixels that appear in that buffer and add it to captured space
+    return (0,0)
 
-    if not board.getMarker().isPushing() and board.edgesBuffer:
-        board.updateEdges()
-        board.updatePlayable()
+def currentEdge(object, board:Board):
+    """
+    Finds an edge that corresponds to the players current position.
+        Returns: Edge if an edge was found. Otherwise: None
+    """
 
-    # Press Spacebar in order start an incursion
-    if moveVector in board.uncaptured and (keys[K_SPACE] or player.isPushing()):
-        player.x = moveVector[0]
-        player.y = moveVector[1]
+    edge = board.firstEdge
+    if posInRange(edge.start, edge.end, (object.x, object.y)):
+        return edge
+    
+    # Move to the next element    
+    edge = edge.next
+    while edge != board.firstEdge:
+        if posInRange(edge.start, edge.end, (object.x, object.y)):
+            return edge
+        edge = edge.next
+    
+    return None
+        
+def posInRange(start, end, position):
+    
+    return inRange(start[0], end[0], position[0]) and inRange(start[1], end[1], position[1])
 
-        board.edgesBuffer.append((player.x,player.y))
-        board.uncaptured.remove((player.x,player.y))
+def inRange(minVal, maxVal, target):
+    return min(minVal, maxVal) <= target and target <= max(minVal, maxVal)
 
-        player.setIsPushing(True)
 
-    player.updateLocation(player.x, player.y)
-
-    board.draw()
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-            pygame.quit()
-        if event == VIDEORESIZE:
-            mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
-
+main() 

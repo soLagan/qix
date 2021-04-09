@@ -7,6 +7,7 @@ class Object():
         self.speed = speed
         self.theRect = pygame.Rect(self.x, self.y, 1, 1)
         self.colour = None
+        self.possibleMoves = []
 
     def updateLocation(self, x, y):
         self.x = x
@@ -20,6 +21,16 @@ class Object():
     def draw(self, screen):
         pygame.draw.rect(screen, self.colour , self.theRect)
         return
+
+    def generateMoveVectors(self):
+        self.possibleMoves.append((self.x+1, self.y))
+        self.possibleMoves.append((self.x, self.y+1))
+        self.possibleMoves.append((self.x-1, self.y))
+        self.possibleMoves.append((self.x, self.y-1))
+        return
+
+    def resetMoveVectors(self):
+        self.possibleMoves = []
 
     # def move(self, board, keyPress, incr):
     #     return
@@ -52,11 +63,19 @@ class Marker(Object):
 
 
 class Sparx(Object):
-    def __init__(self, xPos, yPos, speed):
+    def __init__(self, xPos, yPos, speed, tail1, tail2):
         super().__init__(xPos, yPos, speed)
         self.theRect = pygame.Rect(self.x, self.y, 1, 1)
         self.colour = pygame.Color(51,51,255) # Blue
         self.tail = []  # For movement
+        self.tail.append((xPos,yPos))
+        self.tail.append(tail1)
+        self.possibleMoves = []
+
+    def updateTail(self, moveVector):
+        self.tail.insert(0, moveVector)
+        self.tail.pop()
+
 
 class Qix(Object):
     def __init__(self, xPos, yPos, speed, orientation, directionOfTravel):
