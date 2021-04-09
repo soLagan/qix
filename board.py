@@ -17,6 +17,24 @@ class Edge():
 
     def addAfter(self, new):
         pass
+    def addAfter(self, new, reverse:bool):
+        if not reverse:
+            oldNext = self.next
+            oldEnd = self.end
+            self.next = new
+            self.end = new.start
+            while new.next != None: new = new.next
+            new.next = Edge(new.start, oldEnd)
+            new.next.next = oldNext
+        else:
+            # oldNext = self.next
+            # oldEnd = self.end
+            # self.next = new
+            # self.end = new.start
+            # while new.next != None: new = new.next
+            # new.next = Edge(new.start, oldEnd)
+            # new.next.next = oldNext
+            pass
 
     def getMovementVector(self):
         if self.start[0] == self.end[0]: return (0,1)
