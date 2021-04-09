@@ -7,7 +7,7 @@ import pygame.event;
 import sys
 import math
 
-from board import Board, Edge
+from board import Board, Edge, Vertex
 from boardObjects import Marker, Qix, Sparx
 
 pygame.display.init()
@@ -40,6 +40,7 @@ def main():
     running = True
 
     previousMoveVector = None
+    startingIncurringEdge = None
 
     while running:
 
@@ -79,9 +80,10 @@ def main():
         if touchingEdge and not keys[pygame.K_SPACE]:
             board.getMarker().setIsPushing(False)
 
-        # SPACE is pressed 
+        # SPACE is pressed
         if keys[pygame.K_SPACE]:
             moveVector = limitVectorDirection(moveVector)
+            # TODO: If this runs it skips the draw process after this if statement
             if moveVector == (0,0): continue
             
             # If the player is not currently incurring, initialise the environment
@@ -93,6 +95,7 @@ def main():
 
                 board.firstEdgeBuffer = board.edgesBuffer
                 previousMoveVector = moveVector
+                startingIncurringEdge = touchingEdge
 
             # Try moving
             # The player can move anywhere, BUT:
@@ -104,18 +107,37 @@ def main():
             if previousMoveVector != moveVector:
                 # Finish this edge and start a new one
                 playerPos = (player.x, player.y)
-                # if xDirectionChanged
-                # If the change in direction is x-positive, set end and start normally
-                # If the change in direction is x-negative, flip end and start (edge ends at the current position, start is None)
-                
                 edge.end = playerPos
 
                 edge.next = Edge(edge.end, None)
+                edge.next.previous = edge
+
                 board.edgesBuffer = edge.next
+                previousMoveVector = moveVector
             else:
                 player.updateLocation(player.x + moveVector[0], player.y + moveVector[1])
                 touchingEdge = currentEdge(player, board)
-            # If an edge is being touched after the movement, the incursion is finished
+            
+                # If an edge is being touched after the movement, the incursion is finished
+                if touchingEdge:
+                    # Now we need to decide: Insert into the touching edge or the edge from which it started?
+                    # If same edge, figure out which one is first by comparing the 
+                    if touchingEdge == startingIncurringEdge:
+                        
+                        if touchingEdge.start[1] > edge.start[1]:
+                            # Change in upward direction
+                            touchingEdge.addAfter(board.firstEdgeBuffer, True)
+                        elif touchingEdge.start[1] < edge.start[1]:
+                            # Change in downward direction
+                            touchingEdge.addAfter(board.firstEdgeBuffer, False)
+                            pass
+                        pass
+                    else:
+                        # Otherwise it is an incursion to a different edge
+                        pass
+
+                    # Insert the buffer into the edge
+                    board.getMarker().setIsPushing(False)
 
         board.getMarker().updateLocation(playerRect.x, playerRect.y)
         board.draw()
@@ -154,7 +176,7 @@ def currentEdge(player:Marker, board:Board):
         
 def posInRange(start, end, position):
     
-    return inRange(start['x'], end[0], position[0]) and inRange(start[1], end[1], position[1])
+    return inRange(start[0], end[0], position[0]) and inRange(start[1], end[1], position[1])
 
 def inRange(minVal, maxVal, target):
     return min(minVal, maxVal) <= target and target <= max(minVal, maxVal)

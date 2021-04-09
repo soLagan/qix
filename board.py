@@ -17,6 +17,24 @@ class Edge():
 
     def addAfter(self, new):
         pass
+    def addAfter(self, new, reverse:bool):
+        if not reverse:
+            oldNext = self.next
+            oldEnd = self.end
+            self.next = new
+            self.end = new.start
+            while new.next != None: new = new.next
+            new.next = Edge(new.start, oldEnd)
+            new.next.next = oldNext
+        else:
+            # oldNext = self.next
+            # oldEnd = self.end
+            # self.next = new
+            # self.end = new.start
+            # while new.next != None: new = new.next
+            # new.next = Edge(new.start, oldEnd)
+            # new.next.next = oldNext
+            pass
 
     def getMovementVector(self):
         if self.start[0] == self.end[0]: return (0,1)
@@ -32,11 +50,12 @@ class Board():
         self.playableEdge = []      # Contains coordinates of all traversable space
         self.uncaptured = []    # Contains coordinates of 'uncaptured' space
         self.edges = []         # Contains coordinates of all traversal space
-        self.edgesBuffer = []   # Contains edges on Current push
+       
         self.entities = []      # Contains all boardObjects in play
         self.theMarker = Marker(xPos, yPos, speed, health, pushState)
         self.entities.append(self.theMarker)
         self.firstEdgeBuffer = None
+        self.edgesBuffer = None   # Contains a linked list reference on the current push
 
         initialPoints = [(36,6), (36,94), (124, 94), (124,6)]
 
