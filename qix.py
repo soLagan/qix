@@ -57,8 +57,8 @@ def main():
         # TODO: This vector should be either: (1,0), (0,1), or (0,0)
         moveVector = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP])
         
+        touchingEdge = None # Start from no touchingEdge
         # If nothing is being pressed, ignore the code
-        touchingEdge = None
         if not moveVector == (0,0):
             touchingEdge = currentEdge(player, board)
             
@@ -74,6 +74,7 @@ def main():
             # If an edge was not found, revert the movement
             if not touchingEdge:
                 player.updateLocation(player.x - moveVector[0], player.y - moveVector[1])
+                # TODO: Consider error handling here; The player should always be on an edge
 
         if touchingEdge and not keys[pygame.K_SPACE]:
             board.getMarker().setIsPushing(False)
