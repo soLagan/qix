@@ -141,6 +141,18 @@ def main():
 
         board.getMarker().updateLocation(playerRect.x, playerRect.y)
         board.draw()
+def reverseLinkedList(inputList):
+    prev = None
+    curr = inputList
+    nextRef = None
+
+    while curr != None:
+      nextRef = curr.next
+      curr.next = prev
+      prev = curr
+      curr = nextRef
+    
+    return prev
 
 def limitVectorDirection(vector):
     """
