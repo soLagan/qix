@@ -39,8 +39,9 @@ class Edge():
     def getMovementVector(self):
         if self.start[0] == self.end[0]: return (0,1)
         return (1,0)
-        # Turn an incursion into a polygon and use it to take out points from uncaptured space
-
+    
+    def __str__(self):
+        return f"EDGE: start: {self.start} end:{self.end}"
 class Board():
 
     def __init__(self, xPos, yPos, speed, health, pushState):
@@ -178,8 +179,8 @@ class Board():
         return
 
     def draw(self):
-        self.resized.fill(0)
-
+        self.resized.fill(pygame.Color(0,0,0))
+        
         # Iterate through the linked edges
         edge = self.firstEdge
         
@@ -194,7 +195,7 @@ class Board():
         pygame.draw.line(self.resized, pygame.Color(210,105,30), edge.start, edge.end)
         
         edge = self.firstEdgeBuffer
-        while edge != self.edgesBuffer:
+        while edge and edge != self.edgesBuffer:
             if not edge: break
             if edge.start and edge.end:
                 pygame.draw.line(self.resized, pygame.Color(255,255,255), edge.start, edge.end)
