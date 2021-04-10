@@ -107,7 +107,7 @@ def main():
 
                 if playerPos != edge.start: 
                     edge.end = playerPos
-                    
+
                     edge.next = Edge(edge.end, None)
                     edge.next.previous = edge
 
@@ -135,7 +135,7 @@ def main():
                         if downwardEdge and board.firstEdgeBuffer.start[1] < edge.start[1] \
                             or upwardEdge and board.firstEdgeBuffer.start[1] > edge.start[1] \
                             or rightwardEdge and board.firstEdgeBuffer.start[0] < edge.start[0]\
-                            or leftwardEdge and board.firstEdgeBuffer.start[1] > edge.start[1]:
+                            or leftwardEdge and board.firstEdgeBuffer.start[0] > edge.start[0]:
                             
                             touchingEdge.addAfter(board.firstEdgeBuffer)
                         else:
@@ -163,6 +163,9 @@ def reverseLinkedList(inputList):
     while curr != None:
       nextRef = curr.next
       curr.next = prev
+      oldEnd = curr.end
+      curr.end = curr.start
+      curr.start = oldEnd
       prev = curr
       curr = nextRef
     
