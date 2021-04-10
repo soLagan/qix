@@ -57,7 +57,7 @@ def main():
 
         # TODO: This vector should be either: (1,0), (0,1), or (0,0)
         moveVector = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP])
-        
+        moveVector = limitVectorDirection(moveVector)
         touchingEdge = None # Start from no touchingEdge
         # If nothing is being pressed, ignore the code
         if not moveVector == (0,0):
