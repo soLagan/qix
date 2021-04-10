@@ -60,7 +60,8 @@ def main():
         moveVector = limitVectorDirection(moveVector)
         touchingEdge = None # Start from no touchingEdge
         # If nothing is being pressed, ignore the code
-        if not moveVector == (0,0):
+        if not moveVector == (0,0) and not keys[pygame.K_SPACE]:
+            
             touchingEdge = currentEdge(player, board)
             
             if touchingEdge:
@@ -80,12 +81,7 @@ def main():
         if touchingEdge and not keys[pygame.K_SPACE]:
             board.getMarker().setIsPushing(False)
 
-        # SPACE is pressed
         if keys[pygame.K_SPACE]:
-            moveVector = limitVectorDirection(moveVector)
-            # TODO: If this runs it skips the draw process after this if statement
-            if moveVector == (0,0): continue
-            
             # If the player is not currently incurring, initialise the environment
             if not board.getMarker().isPushing():
                 board.getMarker().setIsPushing(True)
@@ -95,7 +91,7 @@ def main():
 
                 board.firstEdgeBuffer = board.edgesBuffer
                 previousMoveVector = moveVector
-                startingIncurringEdge = touchingEdge
+                startingIncurringEdge = currentEdge(player, board)
 
             # Try moving
             # The player can move anywhere, BUT:
@@ -104,17 +100,20 @@ def main():
             edge = board.edgesBuffer
 
             # The direction changed
-            if previousMoveVector != moveVector:
+            if not currentEdge(player, board) and moveVector != (0,0) and previousMoveVector != moveVector:
                 # Finish this edge and start a new one
                 playerPos = (player.x, player.y)
                 edge.end = playerPos
 
-                edge.next = Edge(edge.end, None)
-                edge.next.previous = edge
+                if playerPos != edge.start: 
+                    edge.end = playerPos
+                    edge.next = Edge(edge.end, None)
+                    edge.next.previous = edge
 
-                board.edgesBuffer = edge.next
-                previousMoveVector = moveVector
-            else:
+                    board.edgesBuffer = edge.next
+                    previousMoveVector = moveVector
+
+            elif moveVector != (0,0):
                 player.updateLocation(player.x + moveVector[0], player.y + moveVector[1])
                 touchingEdge = currentEdge(player, board)
             
