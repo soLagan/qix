@@ -120,12 +120,13 @@ def main():
                 
                 # If an edge is being touched after the movement, the incursion is finished
                 if touchingEdge and board.firstEdgeBuffer != board.edgesBuffer:
+                    # Close the current edge
+                    playerPos = (player.x, player.y)
+                    edge.end = playerPos
                     
                     # If same edge, figure out which one is first by comparing the 
                     if touchingEdge == startingIncurringEdge:
-                        # Close the current edge
-                        playerPos = (player.x, player.y)
-                        edge.end = playerPos
+                        
 
                         downwardEdge = touchingEdge.start[1] < touchingEdge.end[1]
                         upwardEdge = touchingEdge.start[1] > touchingEdge.end[1]
@@ -141,13 +142,33 @@ def main():
                         else:
                             # If the direction of the incursion was made in opposite of the direction of the edge
                             # Reverse the list and insert it
+                            printList(board.firstEdgeBuffer)
                             board.firstEdgeBuffer = reverseLinkedList(board.firstEdgeBuffer)
+                            printList(board.firstEdgeBuffer)
                             touchingEdge.addAfter(board.firstEdgeBuffer)
                         
                     else:
-                        # Otherwise it is an incursion to a different edge
+                        # BUG 1: Fails when only one edge exists in the incursion.
+                        #   Replicate by: Moving upwards from starting position.
+                        # BUG 2: Incursion from right edge to top edge fails.
 
-                        pass
+                        # Otherwise it is an incursion to a different edge
+                        rightwards = board.firstEdgeBuffer.start[0] < edge.end[0]
+                        leftwards = not rightwards # If not traveling right, the action must be going left
+
+                        if rightwards:
+                            startingIncurringEdge.end = board.firstEdgeBuffer.start
+                            startingIncurringEdge.next = board.firstEdgeBuffer
+                            touchingEdge.start = edge.end
+                            edge.next = touchingEdge
+                        else:
+                            oldFirstEdge = board.firstEdgeBuffer
+                            board.firstEdgeBuffer = reverseLinkedList(board.firstEdgeBuffer)
+
+                            startingIncurringEdge.start = oldFirstEdge.end
+                            touchingEdge.end = board.firstEdgeBuffer.start
+                            touchingEdge.next = board.firstEdgeBuffer
+                            oldFirstEdge.next = startingIncurringEdge
 
                     # Insert the buffer into the edge
                     board.getMarker().setIsPushing(False)
