@@ -154,6 +154,15 @@ def reverseLinkedList(inputList):
     
     return prev
 
+def printList(inputList):
+    edge = inputList
+    print(edge)
+    edge = edge.next
+    while edge != None and edge != inputList:
+        print(edge)
+        edge = edge.next
+
+
 def limitVectorDirection(vector):
     """
     Converts a vector to (+-1,0), (0,+-1), or (0,0).
