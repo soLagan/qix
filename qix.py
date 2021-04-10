@@ -59,6 +59,7 @@ def main():
         moveVector = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP])
         moveVector = limitVectorDirection(moveVector)
         touchingEdge = None # Start from no touchingEdge
+        
         # If nothing is being pressed, ignore the code
         if not moveVector == (0,0) and not keys[pygame.K_SPACE]:
             
@@ -103,10 +104,10 @@ def main():
             if not currentEdge(player, board) and moveVector != (0,0) and previousMoveVector != moveVector:
                 # Finish this edge and start a new one
                 playerPos = (player.x, player.y)
-                edge.end = playerPos
 
                 if playerPos != edge.start: 
                     edge.end = playerPos
+                    
                     edge.next = Edge(edge.end, None)
                     edge.next.previous = edge
 
@@ -116,29 +117,43 @@ def main():
             elif moveVector != (0,0):
                 player.updateLocation(player.x + moveVector[0], player.y + moveVector[1])
                 touchingEdge = currentEdge(player, board)
-            
+                
                 # If an edge is being touched after the movement, the incursion is finished
-                if touchingEdge:
-                    # Now we need to decide: Insert into the touching edge or the edge from which it started?
+                if touchingEdge and board.firstEdgeBuffer != board.edgesBuffer:
+                    
                     # If same edge, figure out which one is first by comparing the 
                     if touchingEdge == startingIncurringEdge:
+                        # Close the current edge
+                        playerPos = (player.x, player.y)
+                        edge.end = playerPos
+
+                        downwardEdge = touchingEdge.start[1] < touchingEdge.end[1]
+                        upwardEdge = touchingEdge.start[1] > touchingEdge.end[1]
+                        rightwardEdge = touchingEdge.start[0] < touchingEdge.end[0]
+                        leftwardEdge = touchingEdge.start[0] > touchingEdge.end[0]
+
+                        if downwardEdge and board.firstEdgeBuffer.start[1] < edge.start[1] \
+                            or upwardEdge and board.firstEdgeBuffer.start[1] > edge.start[1] \
+                            or rightwardEdge and board.firstEdgeBuffer.start[0] < edge.start[0]\
+                            or leftwardEdge and board.firstEdgeBuffer.start[1] > edge.start[1]:
+                            
+                            touchingEdge.addAfter(board.firstEdgeBuffer)
+                        else:
+                            # If the direction of the incursion was made in opposite of the direction of the edge
+                            # Reverse the list and insert it
+                            board.firstEdgeBuffer = reverseLinkedList(board.firstEdgeBuffer)
+                            touchingEdge.addAfter(board.firstEdgeBuffer)
                         
-                        if touchingEdge.start[1] > edge.start[1]:
-                            # Change in upward direction
-                            touchingEdge.addAfter(board.firstEdgeBuffer, True)
-                        elif touchingEdge.start[1] < edge.start[1]:
-                            # Change in downward direction
-                            touchingEdge.addAfter(board.firstEdgeBuffer, False)
-                            pass
-                        pass
                     else:
                         # Otherwise it is an incursion to a different edge
+
                         pass
 
                     # Insert the buffer into the edge
                     board.getMarker().setIsPushing(False)
+                    board.firstEdgeBuffer = None
+                    board.edgesBuffer = None
 
-        board.getMarker().updateLocation(playerRect.x, playerRect.y)
         board.draw()
 def reverseLinkedList(inputList):
     prev = None
@@ -180,7 +195,6 @@ def currentEdge(player:Marker, board:Board):
     Finds an edge that corresponds to the players current position.
         Returns: Edge if an edge was found. Otherwise: None
     """
-
     edge = board.firstEdge
     if posInRange(edge.start, edge.end, (player.x, player.y)):
         return edge
@@ -191,7 +205,6 @@ def currentEdge(player:Marker, board:Board):
         if posInRange(edge.start, edge.end, (player.x, player.y)):
             return edge
         edge = edge.next
-    
     return None
         
 def posInRange(start, end, position):
