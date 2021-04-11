@@ -181,7 +181,7 @@ class Board():
         return
 
     def getMarker(self):
-        return self.theMarker
+        return self.entities[0]
 
     def draw(self): # UI elements are also drawn here
         self.resized.fill(pygame.Color(0,0,0))
