@@ -35,17 +35,15 @@ class Edge():
         return f"EDGE: start: {self.start} end:{self.end}"
 class Board():
 
-    def __init__(self, xPos, yPos, speed, health, pushState):
-        self.mainBoard = []     # Contains all possible coordinates entites can exist on
-        self.captured = []      # Contains coordinates of 'captured' space
+    def __init__(self):
+        self.mainBoard = []         # Contains all possible coordinates entites can exist on
+        self.captured = []          # Contains coordinates of 'captured' space
         self.capturedBuffer = []    # Contains all coordinates of space to be 'captured'
         self.playableEdge = []      # Contains coordinates of all traversable space
-        self.uncaptured = []    # Contains coordinates of 'uncaptured' space
-        self.edges = []         # Contains coordinates of all traversal space
-       
-        self.entities = []      # Contains all boardObjects in play
-        self.theMarker = Marker(xPos, yPos, speed, health, pushState)
-        self.entities.append(self.theMarker)
+        self.uncaptured = []        # Contains coordinates of 'uncaptured' space
+        self.edges = []             # Contains coordinates of all traversal space
+        self.edgesBuffer = []       # Contains edges on Current push
+        self.entities = []          # Contains all boardObjects in play
         self.firstEdgeBuffer = None
         self.edgesBuffer = None   # Contains a linked list reference on the current push
 
@@ -57,12 +55,12 @@ class Board():
         self.firstEdge.next.next = Edge(initialPoints[2], initialPoints[3])
         self.firstEdge.next.next.next = Edge(initialPoints[3], initialPoints[0])
         self.firstEdge.next.next.next.next = self.firstEdge
-
+        
         pygame.display.init()
         self.mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
         self.resized = pygame.transform.scale(self.mysurface, (160, 100))
 
-    def gameStart(self):
+    def gameStart(self, level):
         
         # Construct mainBoard, starting edges of traversal, and uncaptured space
         self.mainBoard = [ (x,y) for x in range(160) for y in range(100) if 35 < x < 125 and 5 < y < 95 ]
@@ -71,6 +69,32 @@ class Board():
         self.playableEdge = copy.deepcopy(self.edges)
 
         self.uncaptured = [losing for losing in self.mainBoard if losing not in self.edges] 
+
+        return self.createEntities(level)
+
+    def createEntities(self, level):
+        # Level determines number of enemy entities:
+        # Level 1 = No Enemies
+        # Level 2 = 1 Sparx
+        # Level 3 = 2 Sparxs
+        # Level 4 = 2 Sparxs + 1 Qix
+
+        # All Entities have fixed Starting positions
+
+        player = Marker(80, 94, 1, 5, False)
+        self.entities.append(player)
+
+        if level >= 2:
+            sparx1 = Sparx(60, 6, 1)
+            self.entities.append(sparx1)
+            
+        if level >= 3:
+            sparx2 = Sparx(100, 6, 1)
+            self.entities.append(sparx2)
+                
+        if level == 4:
+            qix = Qix(80, 50, 5, 0, 0)
+            self.entities.append(qix)
 
         return
 
@@ -159,17 +183,7 @@ class Board():
     def getMarker(self):
         return self.theMarker
 
-    def createEntities(self, level): # level determines number of enemy entities
-
-        # Player wants to start at the middle bottom edge
-        
-        # player = Marker(80, 94, 1, 5, False)  
-        # self.entities.append(player)
-        # player = Marker(320, 439, 1, 5, False)  
-
-        return
-
-    def draw(self):
+    def draw(self): # UI elements are also drawn here
         self.resized.fill(pygame.Color(0,0,0))
         
         # Iterate through the linked edges
@@ -194,12 +208,11 @@ class Board():
             if not edge.next:
                 break
             edge = edge.next
+        
+        for entity in self.entities:    # Objects draw their rects onto the screen that is passed
+            entity.draw(self.resized)
 
-        for entity in self.entities:
-            pygame.draw.rect(self.resized, pygame.Color(0,255,255) , entity.theRect)
-
-        #pygame.draw.rect(resized, pygame.Color(0,255,0) , player)
-        self.mysurface.blit(pygame.transform.scale(self.resized, self.mysurface.get_rect().size), (0,0))   # Scale 160 by 100 board to 1280 by 800
+        self.mysurface.blit(pygame.transform.scale(self.resized, self.mysurface.get_rect().size), (0,0)) 
 
         pygame.display.flip()
 

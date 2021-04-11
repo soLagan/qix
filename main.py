@@ -7,55 +7,38 @@ import pygame.event;
 import sys
 import math
 
-from board import Board, Edge, Vertex
-from boardObjects import Marker, Qix, Sparx
+from board import Board, Edge
+from boardObjects import Marker
 
-pygame.display.init()
 fps = 30
 fpsclock=pygame.time.Clock()
 
-# Surface drawn on is 160 by 100 pixels, scaled to 1280 by 800 pixels
-mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
-resized = pygame.transform.scale(mysurface, (160, 100))
+# To be removed, waiting on UI elements to be implemented first
+# pygame.display.init()
+# mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
+# resized = pygame.transform.scale(mysurface, (160, 100))
+# pygame.display.update()
+
+level = 4
+# level = int(input("Enter the you the Level you wish to play [1-4]: "))
+# print("Entering Level {}...".format(level))
 
 def main():
-    pygame.display.update()
-
-    # level = int(input("Enter the you the Level you wish to play [1-3]: "))
-    # print("Entering Level {}...".format(level))
-
     print("Creating Board...")
 
-    board = Board(80,94,1,1,False)
-    board.gameStart()
-    board.createEntities(1)
+    board = Board()
+    board.gameStart(level)  # Calls createEntities
 
     print("Start!")
 
-    # player = pygame.Rect(320,439,25,25)
-    player = board.getMarker()
-    playerRect = player.theRect
-    player.updateLocation(playerRect.x, playerRect.y)
+    player = board.getMarker()  # BoardObjects can only be accessed through the board
 
     running = True
-
-    previousMoveVector = None
-    startingIncurringEdge = None
-
     while running:
 
         fpsclock.tick(30)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                running = False
-            if event == VIDEORESIZE:
-                mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
-
 
         keys = pygame.key.get_pressed()
-
-        # TODO: This vector should be either: (1,0), (0,1), or (0,0)
         moveVector = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP])
         moveVector = limitVectorDirection(moveVector)
         touchingEdge = None # Start from no touchingEdge
@@ -175,7 +158,15 @@ def main():
                     board.firstEdgeBuffer = None
                     board.edgesBuffer = None
 
-        board.draw()
+        board.draw() # draw all objects
+
+        for event in pygame.event.get(): # Check for quit event (closing window)
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+            if event == VIDEORESIZE: # Check for resize
+                mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
+
 def reverseLinkedList(inputList):
     prev = None
     curr = inputList
