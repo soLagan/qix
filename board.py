@@ -2,6 +2,11 @@ from boardObjects import Marker, Qix, Sparx
 import pygame
 import copy
 
+DIRECTION_UPWARDS = (0, -1)
+DIRECTION_DOWNWARDS = (0, 1)
+DIRECTION_RIGHTWARDS = (1,0)
+DIRECTION_LEFTWARDS = (-1,0)
+
 # NOTE: USE.
 class Vertex():
     def __init__(self):
@@ -28,10 +33,10 @@ class Edge():
         new.next.next = oldNext
 
     def getDirection(self):
-        if self.start[1] < self.end[1]: return (0,1)
-        elif self.start[1] > self.end[1]: return (0, -1)
-        elif self.start[0] < self.end[0]: return (1,0)
-        else: return (-1, 0)
+        if self.start[1] < self.end[1]: return DIRECTION_DOWNWARDS
+        elif self.start[1] > self.end[1]: return DIRECTION_UPWARDS
+        elif self.start[0] < self.end[0]: return DIRECTION_RIGHTWARDS
+        else: return DIRECTION_LEFTWARDS
     
     def __str__(self):
         return f"EDGE: start: {self.start} end:{self.end}"
