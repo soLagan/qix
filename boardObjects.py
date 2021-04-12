@@ -60,7 +60,7 @@ class Marker(Object):
         self.invincibility = switch
         
         if switch == True:
-            self.colour = pygame.Color(0,204,255)
+            self.colour = pygame.Color(255,0,0)
         else:
             self.colour = pygame.Color(0,204,0)
 
