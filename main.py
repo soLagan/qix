@@ -111,29 +111,29 @@ def main():
 
                 sparx.resetMoves()
 
-        # Qix
-        if qix:
-            qix.generateMoves() # Generates moves based on the position of Rect.center
-            moveList = []
+        # # Qix
+        # if qix:
+        #     qix.generateMoves() # Generates moves based on the position of Rect.center
+        #     moveList = []
 
-            for move in qix.possibleMoves:
-                prevX = copy.deepcopy(qix.x)
-                prevY = copy.deepcopy(qix.y)
+        #     for move in qix.possibleMoves:
+        #         prevX = copy.deepcopy(qix.x)
+        #         prevY = copy.deepcopy(qix.y)
 
-                qix.updateLocation(move[0], move[1])
-                touchingEdge = currentEdge(qix, board)
+        #         qix.updateLocation(move[0], move[1])
+        #         touchingEdge = currentEdge(qix, board)
 
-                if touchingEdge:
-                    qix.updateLocation(prevX, prevY)
-                else:
-                    moveList.append(move)
+        #         if touchingEdge:
+        #             qix.updateLocation(prevX, prevY)
+        #         else:
+        #             moveList.append(move)
 
-            if moveList:
-                move = random.choice(moveList)
-                # -1 to counteract the offset of using Rect.center for generating moves
-                qix.updateLocation(move[0]-4, move[1]-4) 
+        #     if moveList:
+        #         move = random.choice(moveList)
+        #         # -1 to counteract the offset of using Rect.center for generating moves
+        #         qix.updateLocation(move[0]-4, move[1]-4) 
 
-            qix.resetMoves()
+        #     qix.resetMoves()
 
 
         board.draw()
@@ -143,6 +143,7 @@ def main():
             player.toggleInvincibility(True)
 
         if pygame.time.get_ticks() - collisionTime > 1000:
+            collisionTime = 0
             player.toggleInvincibility(False)
 
         for event in pygame.event.get():
