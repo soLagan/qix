@@ -104,4 +104,8 @@ class Qix(Object):
         self.possibleMoves.append((self.theRect.center[0]-1, self.theRect.center[1]))
         self.possibleMoves.append((self.theRect.center[0], self.theRect.center[1]+1))
         self.possibleMoves.append((self.theRect.center[0], self.theRect.center[1]-1))
+
+    def draw(self, screen):
+        # pygame.draw.rect(screen, pygame.Color('blue') , self.theRect)
+        pygame.draw.circle(screen, self.colour , self.theRect.center, 5)
     
