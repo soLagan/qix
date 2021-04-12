@@ -102,8 +102,10 @@ def main():
                     else:
                         moveList.append(move)
 
-                move = random.choice(moveList)  
-                sparx.updateTail((move[0], move[1]))
+                if moveList:
+                    move = random.choice(moveList)
+                    sparx.updateTail((move[0], move[1]))
+                    sparx.updateLocation(move[0], move[1]) 
 
                 sparx.resetMoves()
 
@@ -112,21 +114,22 @@ def main():
             qix.generateMoves() # Generates moves based on the position of Rect.center
             moveList = []
 
-            for moveVector in qix.possibleMoves:
+            for move in qix.possibleMoves:
                 prevX = copy.deepcopy(qix.x)
                 prevY = copy.deepcopy(qix.y)
 
-                qix.updateLocation(moveVector[0], moveVector[1])
+                qix.updateLocation(move[0], move[1])
                 touchingEdge = currentEdge(qix, board)
 
                 if touchingEdge:
                     qix.updateLocation(prevX, prevY)
                 else:
-                    moveList.append(moveVector)
+                    moveList.append(move)
 
-            moveVector = random.choice(moveList)
-            # -1 to counteract the offset of using Rect.center for generating moves
-            qix.updateLocation(moveVector[0]-1, moveVector[1]-1) 
+            if moveList:
+                move = random.choice(moveList)
+                # -1 to counteract the offset of using Rect.center for generating moves
+                qix.updateLocation(move[0]-1, move[1]-1) 
 
             qix.resetMoves()
 
