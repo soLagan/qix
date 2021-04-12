@@ -131,19 +131,36 @@ def main():
                             touchingEdge.addAfter(board.firstEdgeBuffer)
                         
                     else:
-                        # BUG 1: Fails when only one edge exists in the incursion.
-                        #   Replicate by: Moving upwards from starting position.
-                        # BUG 2: Incursion from right edge to top edge fails.
+                        touchingEdgeDirection = touchingEdge.getDirection()
+                        startingEdgeDirection = startingIncurringEdge.getDirection()
 
-                        # Otherwise it is an incursion to a different edge
-                        rightwards = board.firstEdgeBuffer.start[0] < edge.end[0]
-                        leftwards = not rightwards # If not traveling right, the action must be going left
 
-                        if rightwards:
+                        # Accept incursions from:
+                        #   - downwards to upwards (rightward horizontal incursion)
+                        #   - downwards to rightwards
+                        #   - rightwards to upwards
+                        #   - upwards to leftwards
+                        #   - leftwards to downwards
+                        #   - rightwards to leftwards (upward vertical incursion)
+                        if startingEdgeDirection == (0, 1) and touchingEdgeDirection == (0, -1)\
+                            or startingEdgeDirection == (0, 1) and touchingEdgeDirection == (1, 0)\
+                            or startingEdgeDirection == (1, 0) and touchingEdgeDirection == (0, -1)\
+                            or startingEdgeDirection == (0, -1) and touchingEdgeDirection == (-1, 0)\
+                            or startingEdgeDirection == (-1, 0) and touchingEdgeDirection == (0, 1)\
+                            or startingEdgeDirection == (1, 0) and touchingEdgeDirection == (-1, 0):
+
                             startingIncurringEdge.end = board.firstEdgeBuffer.start
                             startingIncurringEdge.next = board.firstEdgeBuffer
                             touchingEdge.start = edge.end
                             edge.next = touchingEdge
+                        
+                        # Accept incursions from:
+                        #   - leftwards to upwards
+                        #   - downwards to leftwards
+                        #   - rightwards to downwards
+                        #   - upwards to rightwards
+                        #   - upwards to downwards (horizontal incursion)
+                        #   - leftwards to rightwards (downward vertical incursion)
                         else:
                             oldFirstEdge = board.firstEdgeBuffer
                             board.firstEdgeBuffer = reverseLinkedList(board.firstEdgeBuffer)
