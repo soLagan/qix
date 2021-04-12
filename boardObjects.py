@@ -37,6 +37,7 @@ class Marker(Object):
 
         self.health = health
         self.pushState = pushState
+        self.invincibility = False
 
         self.colour = pygame.Color(0,204,0) # Green
 
@@ -51,6 +52,17 @@ class Marker(Object):
 
     def updateHealth(self):
         self.health -= 1
+
+    def isInvincible(self):
+        return self.invincibility
+
+    def toggleInvincibility(self, switch):
+        self.invincibility = switch
+        
+        if switch == True:
+            self.colour = pygame.Color(0,204,255)
+        else:
+            self.colour = pygame.Color(0,204,0)
 
 
 class Sparx(Object):
@@ -75,7 +87,7 @@ class Qix(Object):
     def __init__(self, xPos, yPos):
         super().__init__(xPos, yPos)
 
-        self.theRect = pygame.Rect(self.x, self.y, 3, 3)    # Override Rect dimensions
+        self.theRect = pygame.Rect(self.x, self.y, 9, 9)    # Override Rect dimensions
         self.colour = pygame.Color(204,204,255) # Light Navy Blue
 
     # Overload updateLocation as the qix will 3 by 3 instead of 1 by 1 
@@ -83,7 +95,7 @@ class Qix(Object):
         self.x = x
         self.y = y
 
-        self.theRect.update(self.x, self.y, 3, 3)
+        self.theRect.update(self.x, self.y, 9, 9)
 
     # Overload generateMoves as the qix will use find moves with the center point as the anchor because
     # the qix's x and y correlate to the top left edge of the Rect instead of the center

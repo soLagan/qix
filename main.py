@@ -40,6 +40,8 @@ def main():
 
     sparxHolder = [sparx1,sparx2]
 
+    collisionTime = 0
+
     running = True
     while running:
 
@@ -129,12 +131,19 @@ def main():
             if moveList:
                 move = random.choice(moveList)
                 # -1 to counteract the offset of using Rect.center for generating moves
-                qix.updateLocation(move[0]-1, move[1]-1) 
+                qix.updateLocation(move[0]-4, move[1]-4) 
 
             qix.resetMoves()
 
+
         board.draw()
-        board.collide()
+
+        if board.collide():
+            collisionTime = pygame.time.get_ticks()
+            player.toggleInvincibility(True)
+
+        if pygame.time.get_ticks() - collisionTime > 1000:
+            player.toggleInvincibility(False)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
