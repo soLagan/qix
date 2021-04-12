@@ -67,85 +67,97 @@ def main():
             player.setIsPushing(True)
 
 
-        # Sparx Movement
+        # Enemy Movement
 
         # Sparx 1
         if level >= 2:
+
             sparx = board.getSparx1()
-            sparx.generateMoveVectors()
+            sparx.generateMoves()
             moveList = []
 
-            for moveVector in sparx.possibleMoves:
+            for move in sparx.possibleMoves:
+
+                if move in sparx.tail:
+                    continue
+                
                 prevX = copy.deepcopy(sparx.x)
                 prevY = copy.deepcopy(sparx.y)
 
-                if moveVector in sparx.tail:
-                    continue
-
-                sparx.updateLocation(moveVector[0], moveVector[1])
+                sparx.updateLocation(move[0], move[1])
 
                 touchingEdge = currentEdge(sparx,board)
 
                 if not touchingEdge:
                     sparx.updateLocation(prevX, prevY)
                 else:
-                    moveList.append(moveVector)
-            print(moveList)
-            moveVector = random.choice(moveList)  
-            sparx.updateTail((moveVector[0], moveVector[1]))
-            sparx.resetMoveVectors()
+                    moveList.append(move)
+
+            move = random.choice(moveList)  
+            sparx.updateTail((move[0], move[1]))
+
+            sparx.resetMoves()
 
 
         # Sparx 2
         if level >= 3:
+
             sparx = board.getSparx2()
-            sparx.generateMoveVectors()
+            sparx.generateMoves()
             moveList = []
 
-            for moveVector in sparx.possibleMoves:
+            for move in sparx.possibleMoves:
+
+                if move in sparx.tail:
+                    continue
+                
                 prevX = copy.deepcopy(sparx.x)
                 prevY = copy.deepcopy(sparx.y)
 
-                if moveVector in sparx.tail:
-                    continue
-
-                sparx.updateLocation(moveVector[0], moveVector[1])
+                sparx.updateLocation(move[0], move[1])
 
                 touchingEdge = currentEdge(sparx,board)
 
                 if not touchingEdge:
                     sparx.updateLocation(prevX, prevY)
                 else:
-                    moveList.append(moveVector)
+                    moveList.append(move)
 
-            moveVector = random.choice(moveList)  
-            sparx.updateTail((moveVector[0], moveVector[1]))
-            sparx.resetMoveVectors()
+            move = random.choice(moveList)  
+            sparx.updateTail((move[0], move[1]))
+
+            sparx.resetMoves()
+
 
 
         # Qix
         if level == 4:
             qix = board.getQix()
-            qix.generateMoveVectors()
+            qix.generateMoves()
             moveList = []
 
             for moveVector in qix.possibleMoves:
+                prevX = copy.deepcopy(sparx.x)
+                prevY = copy.deepcopy(sparx.y)
 
                 qix.updateLocation(moveVector[0], moveVector[1])
                 touchingEdge = currentEdge(qix, board)
 
-                if not touchingEdge:
+                if touchingEdge:
+                    qix.updateLocation(prevX, prevY)
+                else:
                     moveList.append(moveVector)
 
             moveVector = random.choice(moveList)
+            qix.updateLocation(moveVector[0]-3, moveVector[1]-3)
 
-            qix.updateLocation(moveVector[0], moveVector[1])
-            qix.resetMoveVectors()
+            qix.resetMoves()
 
 
         player.updateLocation(player.x, player.y)
 
         board.draw()
+        board.collide()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

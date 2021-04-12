@@ -76,11 +76,11 @@ class Board():
         self.entities.append(player)
 
         if level >= 2:
-            sparx1 = Sparx(60, 6, 1, (59,6), (58,6))
+            sparx1 = Sparx(60, 6, 1, (61,6), (62,6))
             self.entities.append(sparx1)
             
         if level >= 3:
-            sparx2 = Sparx(100, 6, 1, (101,6), (102,6))
+            sparx2 = Sparx(100, 6, 1, (99,6), (98,6))
             self.entities.append(sparx2)
                 
         if level == 4:
@@ -185,6 +185,11 @@ class Board():
     def getQix(self):
         if len(self.entities) == 4:
             return self.entities[3]
+    
+    def collide(self):
+        for index in range(1,len(self.entities),1):
+            if pygame.Rect.colliderect(self.getMarker().theRect, self.entities[index].theRect):
+                self.getMarker().updateHealth()
 
 
     def draw(self): # UI elements are also drawn here

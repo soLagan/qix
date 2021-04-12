@@ -22,21 +22,15 @@ class Object():
         pygame.draw.rect(screen, self.colour , self.theRect)
         return
 
-    def generateMoveVectors(self):
+    def generateMoves(self):
         self.possibleMoves.append((self.x+1, self.y))
         self.possibleMoves.append((self.x, self.y+1))
         self.possibleMoves.append((self.x-1, self.y))
         self.possibleMoves.append((self.x, self.y-1))
         return
 
-    def resetMoveVectors(self):
+    def resetMoves(self):
         self.possibleMoves = []
-
-    # def move(self, board, keyPress, incr):
-    #     return
-
-    # def collide(self): # if collision happens?
-    #     return
 
 
 class Marker(Object):
@@ -70,6 +64,7 @@ class Sparx(Object):
         self.tail = []  # For movement
         self.tail.append((xPos,yPos))
         self.tail.append(tail1)
+        self.tail.append(tail2)
         self.possibleMoves = []
 
     def updateTail(self, moveVector):
@@ -82,7 +77,20 @@ class Qix(Object):
         super().__init__(xPos, yPos, speed)
         self.orientation = orientation
         self.directionOfTravel = directionOfTravel
-        self.theRect = pygame.Rect(self.x, self.y, 1, 1)
+        self.theRect = pygame.Rect(self.x, self.y, 7, 7)
         self.colour = pygame.Color(204,204,255) # Black
+        self.rectCenter = self.theRect.center
 
+    def updateLocation(self, x, y):
+        self.x = x
+        self.y = y
+        self.theRect.update(self.x, self.y, 7, 7)
+        return
+
+    def generateMoves(self):
+        self.possibleMoves.append((self.theRect.center[0]+1, self.theRect.center[1]))
+        self.possibleMoves.append((self.theRect.center[0]-1, self.theRect.center[1]))
+        self.possibleMoves.append((self.theRect.center[0], self.theRect.center[1]+1))
+        self.possibleMoves.append((self.theRect.center[0], self.theRect.center[1]-1))
+        return
     
