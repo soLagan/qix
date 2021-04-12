@@ -27,9 +27,11 @@ class Edge():
 
         new.next.next = oldNext
 
-    def getMovementVector(self):
-        if self.start[0] == self.end[0]: return (0,1)
-        return (1,0)
+    def getDirection(self):
+        if self.start[1] < self.end[1]: return (0,1)
+        elif self.start[1] > self.end[1]: return (0, -1)
+        elif self.start[0] < self.end[0]: return (1,0)
+        else: return (-1, 0)
     
     def __str__(self):
         return f"EDGE: start: {self.start} end:{self.end}"
