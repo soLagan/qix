@@ -71,20 +71,21 @@ class Board():
         # Level 4 = 2 Sparxs + 1 Qix
 
         # All Entities have fixed Starting positions
+        # Sparx Tails will determine the starting direction 
 
-        player = Marker(80, 94, 1, 5, False)
+        player = Marker(80, 94, 5, False)
         self.entities.append(player)
 
         if level >= 2:
-            sparx1 = Sparx(60, 6, 1, (61,6), (62,6))
+            sparx1 = Sparx(60, 6, (61,6))   # Tail is right of the Sparx, move left first
             self.entities.append(sparx1)
             
         if level >= 3:
-            sparx2 = Sparx(100, 6, 1, (99,6), (98,6))
+            sparx2 = Sparx(100, 6, (99,6))  # Tail is left of the Sparx, move right first
             self.entities.append(sparx2)
                 
         if level == 4:
-            qix = Qix(80, 50, 5, 0, 0)
+            qix = Qix(80, 50)
             self.entities.append(qix)
 
         return
@@ -177,16 +178,19 @@ class Board():
     def getSparx1(self):
         if len(self.entities) >= 2:
             return self.entities[1]
+        return None
 
     def getSparx2(self):
         if len(self.entities) >= 3:
             return self.entities[2]
+        return None
 
     def getQix(self):
         if len(self.entities) == 4:
             return self.entities[3]
+        return None
     
-    def collide(self):
+    def collide(self):  # Check if Marker overlaps with an enemy object
         for index in range(1,len(self.entities),1):
             if pygame.Rect.colliderect(self.getMarker().theRect, self.entities[index].theRect):
                 self.getMarker().updateHealth()
@@ -223,9 +227,3 @@ class Board():
         self.mysurface.blit(pygame.transform.scale(self.resized, self.mysurface.get_rect().size), (0,0)) 
 
         pygame.display.flip()
-
-    def validateMove(self, keyPress, incr):
-        return
-
-    def updateLocations(self):
-        return

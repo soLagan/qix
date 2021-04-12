@@ -11,18 +11,15 @@ import random
 
 from board import Board
 
-fps = 30
-fpsclock=pygame.time.Clock()
 
 # To be removed, waiting on UI elements to be implemented first
 
 # pygame.display.update()
 
 def main():
-    pygame.display.init()
-    mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
-    resized = pygame.transform.scale(mysurface, (160, 100))
-    pygame.display.update()
+
+    fpsclock=pygame.time.Clock()
+
     level = 4
 
     # level = int(input("Enter the you the Level you wish to play [1-4]: "))
@@ -35,7 +32,13 @@ def main():
 
     print("Start!")
 
-    player = board.getMarker()  # BoardObjects can only be accessed through the board
+    # BoardObjects can only be accessed through the board
+    player = board.getMarker()
+    sparx1 = board.getSparx1()
+    sparx2 = board.getSparx2()
+    qix = board.getQix()
+
+    sparxHolder = [sparx1,sparx2]
 
     running = True
     while running:
@@ -66,79 +69,52 @@ def main():
 
             player.setIsPushing(True)
 
-
-        # Enemy Movement
-
-        # Sparx 1
-        if level >= 2:
-
-            sparx = board.getSparx1()
-            sparx.generateMoves()
-            moveList = []
-
-            for move in sparx.possibleMoves:
-
-                if move in sparx.tail:
-                    continue
-                
-                prevX = copy.deepcopy(sparx.x)
-                prevY = copy.deepcopy(sparx.y)
-
-                sparx.updateLocation(move[0], move[1])
-
-                touchingEdge = currentEdge(sparx,board)
-
-                if not touchingEdge:
-                    sparx.updateLocation(prevX, prevY)
-                else:
-                    moveList.append(move)
-
-            move = random.choice(moveList)  
-            sparx.updateTail((move[0], move[1]))
-
-            sparx.resetMoves()
+        player.updateLocation(player.x, player.y)
 
 
-        # Sparx 2
-        if level >= 3:
+        # General Enemy Movement:
+        # Qix and Sparx both use a random movement algorithm
+        # 1. They will generate a movelist based on the adjacent points to their current position
+        # 2. Filter through movelist checking if a move satisfies the specific criteria
+        # 3. Choose a random move based on the moves that have been screened
 
-            sparx = board.getSparx2()
-            sparx.generateMoves()
-            moveList = []
+        # For the Sparx's
+        for sparx in sparxHolder:
 
-            for move in sparx.possibleMoves:
+            if sparx:
+                sparx.generateMoves()
+                moveList = []
 
-                if move in sparx.tail:
-                    continue
-                
-                prevX = copy.deepcopy(sparx.x)
-                prevY = copy.deepcopy(sparx.y)
+                for move in sparx.possibleMoves:
 
-                sparx.updateLocation(move[0], move[1])
+                    if move in sparx.tail:  # Sparx tail to prevent backtracking
+                        continue
+                    
+                    prevX = copy.deepcopy(sparx.x)
+                    prevY = copy.deepcopy(sparx.y)
 
-                touchingEdge = currentEdge(sparx,board)
+                    sparx.updateLocation(move[0], move[1])
 
-                if not touchingEdge:
-                    sparx.updateLocation(prevX, prevY)
-                else:
-                    moveList.append(move)
+                    touchingEdge = currentEdge(sparx,board)
 
-            move = random.choice(moveList)  
-            sparx.updateTail((move[0], move[1]))
+                    if not touchingEdge:
+                        sparx.updateLocation(prevX, prevY)
+                    else:
+                        moveList.append(move)
 
-            sparx.resetMoves()
+                move = random.choice(moveList)  
+                sparx.updateTail((move[0], move[1]))
 
-
+                sparx.resetMoves()
 
         # Qix
-        if level == 4:
-            qix = board.getQix()
-            qix.generateMoves()
+        if qix:
+            qix.generateMoves() # Generates moves based on the position of Rect.center
             moveList = []
 
             for moveVector in qix.possibleMoves:
-                prevX = copy.deepcopy(sparx.x)
-                prevY = copy.deepcopy(sparx.y)
+                prevX = copy.deepcopy(qix.x)
+                prevY = copy.deepcopy(qix.y)
 
                 qix.updateLocation(moveVector[0], moveVector[1])
                 touchingEdge = currentEdge(qix, board)
@@ -149,12 +125,10 @@ def main():
                     moveList.append(moveVector)
 
             moveVector = random.choice(moveList)
-            qix.updateLocation(moveVector[0]-3, moveVector[1]-3)
+            # -1 to counteract the offset of using Rect.center for generating moves
+            qix.updateLocation(moveVector[0]-1, moveVector[1]-1) 
 
             qix.resetMoves()
-
-
-        player.updateLocation(player.x, player.y)
 
         board.draw()
         board.collide()
@@ -163,8 +137,6 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-            if event == VIDEORESIZE:
-                mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
 
 
 def limitVectorDirection(vector):
@@ -205,6 +177,5 @@ def posInRange(start, end, position):
 
 def inRange(minVal, maxVal, target):
     return min(minVal, maxVal) <= target and target <= max(minVal, maxVal)
-
 
 main() 
