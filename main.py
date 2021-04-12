@@ -130,7 +130,7 @@ def main():
 
             if moveList:
                 move = random.choice(moveList)
-                # -1 to counteract the offset of using Rect.center for generating moves
+                # -4 to counteract the offset of using Rect.center for generating moves
                 qix.updateLocation(move[0]-4, move[1]-4) 
 
             qix.resetMoves()

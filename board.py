@@ -192,7 +192,11 @@ class Board():
     
     def collide(self):  # Check if Marker overlaps with an enemy object
         for index in range(1,len(self.entities),1):
-            if pygame.Rect.colliderect(self.getMarker().theRect, self.entities[index].theRect) and not self.getMarker().isInvincible():
+            
+            if self.getMarker().isInvincible():
+                return False
+
+            if pygame.Rect.colliderect(self.getMarker().theRect, self.entities[index].theRect):
 
                 self.getMarker().updateHealth()
                 self.getMarker().toggleInvincibility(True)

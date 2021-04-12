@@ -90,7 +90,7 @@ class Qix(Object):
         self.theRect = pygame.Rect(self.x, self.y, 9, 9)    # Override Rect dimensions
         self.colour = pygame.Color(204,204,255) # Light Navy Blue
 
-    # Overload updateLocation as the qix will 3 by 3 instead of 1 by 1 
+    # Overload updateLocation as the qix will 9 by 9 instead of 1 by 1 
     def updateLocation(self, x, y):
         self.x = x
         self.y = y
@@ -105,6 +105,8 @@ class Qix(Object):
         self.possibleMoves.append((self.theRect.center[0], self.theRect.center[1]+1))
         self.possibleMoves.append((self.theRect.center[0], self.theRect.center[1]-1))
 
+    # Qix's hitbox will still be the Rect object
+    # Will draw a circle instead as it is softer on the eyes
     def draw(self, screen):
         # pygame.draw.rect(screen, pygame.Color('blue') , self.theRect)
         pygame.draw.circle(screen, self.colour , self.theRect.center, 5)
