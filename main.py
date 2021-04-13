@@ -66,8 +66,10 @@ def main():
             board.getMarker().setIsPushing(False)
 
         if keys[pygame.K_SPACE]:
+            # If the player is currently touching the edge while doing an incursion, and if the stored incursion is of length 1, initialise the environment
             # If the player is not currently incurring, initialise the environment
-            if not board.getMarker().isPushing():
+            if currentEdge(player, board) and board.getMarker().isPushing() and board.edgesBuffer == board.firstEdgeBuffer\
+                or not board.getMarker().isPushing():
                 board.getMarker().setIsPushing(True)
 
                 playerPos = (player.x, player.y)
