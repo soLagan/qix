@@ -6,6 +6,7 @@ from pygame.locals import *
 import pygame.event;
 import sys
 import math
+import shapely
 
 from board import Board, DIRECTION_DOWNWARDS, DIRECTION_LEFTWARDS, DIRECTION_RIGHTWARDS, DIRECTION_UPWARDS, Edge
 from boardObjects import Marker
@@ -97,7 +98,7 @@ def main():
                     board.edgesBuffer = edge.next
                     previousMoveVector = moveVector
 
-            elif moveVector != (0,0):
+            elif moveVector != (0,0) and (board.playableAreaPolygon.contains(shapely.geometry.Point(player.x + moveVector[0], player.y + moveVector[1])) or board.playableAreaPolygon.touches(shapely.geometry.Point(player.x + moveVector[0], player.y + moveVector[1]))): # Probably refactor this LOL (put this in a method or something)
                 player.updateLocation(player.x + moveVector[0], player.y + moveVector[1])
                 touchingEdge = currentEdge(player, board)
                 
@@ -186,6 +187,8 @@ def main():
                     board.getMarker().setIsPushing(False)
                     board.firstEdgeBuffer = None
                     board.edgesBuffer = None
+                    board.playableAreaPolygon = board.remakePlayableArea()
+
 
         board.draw() # draw all objects
 

@@ -1,6 +1,8 @@
 from boardObjects import Marker, Qix, Sparx
 import pygame
 import copy
+import shapely
+from shapely import geometry
 
 DIRECTION_UPWARDS = (0, -1)
 DIRECTION_DOWNWARDS = (0, 1)
@@ -53,6 +55,7 @@ class Board():
         self.entities = []          # Contains all boardObjects in play
         self.firstEdgeBuffer = None
         self.edgesBuffer = None   # Contains a linked list reference on the current push
+        # self.playableAreaPolygon = None # Contains Polygon object representing player's non-push movable area. Polygon is useful for calculating area and determining 'insideness' for collisions
 
         initialPoints = [(36,6), (36,94), (124, 94), (124,6)]
 
@@ -66,6 +69,8 @@ class Board():
         pygame.display.init()
         self.mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
         self.resized = pygame.transform.scale(self.mysurface, (160, 100))
+        
+        self.playableAreaPolygon = self.remakePlayableArea()
 
     def gameStart(self, level):
         
@@ -229,3 +234,18 @@ class Board():
     def updateLocations(self):
 
         return
+
+    def remakePlayableArea(self):  # Happens when an incursion is finished, to induct the incursion shape into the playable area
+        
+        iterator = self.firstEdge.next
+        shapeList = []
+
+        while True:
+            if iterator == self.firstEdge:
+                shapeList.append(iterator.end)
+                break
+            shapeList.append(iterator.end)
+            iterator = iterator.next
+        
+        shape = shapely.geometry.Polygon(shapeList)
+        return shape
