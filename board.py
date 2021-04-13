@@ -8,14 +8,18 @@ class Vertex():
         self.y = 0
 
 class Edge():
-    def __init__(self):
-        self.start = None
-        self.end = None
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
         self.next = None
         self.previous = None
 
     def addAfter(self, new):
         pass
+
+    def getMovementVector(self):
+        if self.start[0] == self.end[0]: return (0,1)
+        return (1,0)
         # Turn an incursion into a polygon and use it to take out points from uncaptured space
 
 class Board():
@@ -30,7 +34,20 @@ class Board():
         self.edgesBuffer = []       # Contains edges on Current push
         self.entities = []          # Contains all boardObjects in play
 
+        self.firstEdgeBuffer = None
+
+        initialPoints = [(36,6), (36,94), (124, 94), (124,6)]
+
+        # Initialise four corners
+        self.firstEdge = Edge(initialPoints[0], initialPoints[1])
+        self.firstEdge.next = Edge(initialPoints[1], initialPoints[2])
+        self.firstEdge.next.next = Edge(initialPoints[2], initialPoints[3])
+        self.firstEdge.next.next.next = Edge(initialPoints[3], initialPoints[0])
+        self.firstEdge.next.next.next.next = self.firstEdge
+
+
         pygame.display.init()
+        pygame.display.set_caption('QIX')
         self.mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
         self.resized = pygame.transform.scale(self.mysurface, (160, 100))
 
@@ -54,20 +71,21 @@ class Board():
         # Level 4 = 2 Sparxs + 1 Qix
 
         # All Entities have fixed Starting positions
+        # Sparx Tails will determine the starting direction 
 
-        player = Marker(80, 94, 1, 5, False)
+        player = Marker(80, 94, 5, False)
         self.entities.append(player)
 
         if level >= 2:
-            sparx1 = Sparx(60, 6, 1)
+            sparx1 = Sparx(60, 6, (61,6))   # Tail is right of the Sparx, move left first
             self.entities.append(sparx1)
             
         if level >= 3:
-            sparx2 = Sparx(100, 6, 1)
+            sparx2 = Sparx(100, 6, (99,6))  # Tail is left of the Sparx, move right first
             self.entities.append(sparx2)
                 
         if level == 4:
-            qix = Qix(80, 50, 5, 0, 0)
+            qix = Qix(80, 50)
             self.entities.append(qix)
 
         return
@@ -157,19 +175,59 @@ class Board():
     def getMarker(self):
         return self.entities[0]
 
+    def getSparx1(self):
+        if len(self.entities) >= 2:
+            return self.entities[1]
+        return None
+
+    def getSparx2(self):
+        if len(self.entities) >= 3:
+            return self.entities[2]
+        return None
+
+    def getQix(self):
+        if len(self.entities) == 4:
+            return self.entities[3]
+        return None
+    
+    def collide(self):  # Check if Marker overlaps with an enemy object
+        for index in range(1,len(self.entities),1):
+            
+            if self.getMarker().isInvincible():
+                return False
+
+            if pygame.Rect.colliderect(self.getMarker().theRect, self.entities[index].theRect):
+
+                self.getMarker().updateHealth()
+                self.getMarker().toggleInvincibility(True)
+
+                # print("now!")
+                return True
+
     def draw(self): # UI elements are also drawn here
         self.resized.fill(0)
 
-        for coor in self.edges:
-            pygame.draw.rect(self.resized, pygame.Color(255,255,255),pygame.Rect(coor[0],coor[1],1,1))
-        for coor in self.playableEdge:
-            pygame.draw.rect(self.resized, pygame.Color(255,0,255),pygame.Rect(coor[0],coor[1],1,1))
-        for coor in self.uncaptured:
-            pygame.draw.rect(self.resized, pygame.Color(23,0,0),pygame.Rect(coor[0],coor[1],1,1))
-        for coor in self.edgesBuffer:
-            pygame.draw.rect(self.resized, pygame.Color(255,0,0),pygame.Rect(coor[0],coor[1],1,1))
-        for coor in self.captured:
-            pygame.draw.rect(self.resized, pygame.Color(210,105,30),pygame.Rect(coor[0],coor[1],1,1))
+        edge = self.firstEdge
+        
+        pygame.draw.line(self.resized, pygame.Color(210,105,30), edge.start, edge.end)
+        edge = edge.next
+        while edge != self.firstEdge:
+            pygame.draw.line(self.resized, pygame.Color(210,105,30), edge.start, edge.end)
+            edge = edge.next
+
+        edge = self.firstEdge
+        
+        pygame.draw.line(self.resized, pygame.Color(210,105,30), edge.start, edge.end)
+        
+        edge = self.firstEdgeBuffer
+        while edge != self.edgesBuffer:
+            if not edge: break
+            if edge.start and edge.end:
+                pygame.draw.line(self.resized, pygame.Color(255,255,255), edge.start, edge.end)
+            
+            if not edge.next:
+                break
+            edge = edge.next
         
         for entity in self.entities:    # Objects draw their rects onto the screen that is passed
             entity.draw(self.resized)
@@ -177,9 +235,3 @@ class Board():
         self.mysurface.blit(pygame.transform.scale(self.resized, self.mysurface.get_rect().size), (0,0)) 
 
         pygame.display.flip()
-
-    def validateMove(self, keyPress, incr):
-        return
-
-    def updateLocations(self):
-        return
