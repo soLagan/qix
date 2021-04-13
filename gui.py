@@ -5,6 +5,7 @@ from random import randint
 class GUI:
 
     def __init__(self):
+        self.end_text = "None"
         self.selected_difficulty = "NONE"
         self.bg_color = '#0EFFE9'
         self.btn_bg_color = '#FF0E83'
@@ -180,7 +181,7 @@ class GUI:
 
         # Create the layout
         layout_game_over = [
-            [sg.Text("GAME OVER", justification='center', size=(1280, 3), pad=((0, 0), (200, 0)),
+            [sg.Text(self.end_text, justification='center', size=(1280, 3), pad=((0, 0), (200, 0)),
                      text_color=self.text_color, background_color=self.bg_color)],
             [sg.Text("Area Captured: " + str(self.user_score) + "%", justification='center', size=(1280, 3),
                      text_color=self.text_color, background_color=self.bg_color, key=self.user_score_key)],
@@ -222,6 +223,10 @@ class GUI:
         return new_window
 
     def render_game_over_screen(self):
+        if int(self.user_score) >= 50:
+            self.end_text = "You Won"
+        else:
+            self.end_text = "Game Over"
         # Boolean which checks whether to restart game or not
         restart = False
         game_over_window = self.make_game_over_window()
