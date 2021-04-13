@@ -112,7 +112,6 @@ def main():
                     # If same edge, figure out which one is first by comparing the 
                     if touchingEdge == startingIncurringEdge:
                         
-
                         downwardEdge = touchingEdge.start[1] < touchingEdge.end[1]
                         upwardEdge = touchingEdge.start[1] > touchingEdge.end[1]
                         rightwardEdge = touchingEdge.start[0] < touchingEdge.end[0]
@@ -149,17 +148,19 @@ def main():
                         #   - leftwards to leftwards in a rightwards-incursion. Same reasoning as above
                         #   - upwards to upwards. Same reasoning as above
                         #   - rightwards to rightwards. Same reasoning as above
+                        #   - upwards to rightwards
                         if     startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_UPWARDS \
+                            or startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_DOWNWARDS \
+                            or startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_RIGHTWARDS \
                             or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_LEFTWARDS \
-                            or startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_DOWNWARDS  \
-                            or startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_RIGHTWARDS  \
                             or startingEdgeDirection == DIRECTION_UPWARDS       and touchingEdgeDirection == DIRECTION_LEFTWARDS \
-                            or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_UPWARDS \
-                            or startingEdgeDirection == DIRECTION_LEFTWARDS     and touchingEdgeDirection == DIRECTION_DOWNWARDS  \
-                            or startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_LEFTWARDS    and leftwardIncursion\
-                            or startingEdgeDirection == DIRECTION_LEFTWARDS     and touchingEdgeDirection == DIRECTION_LEFTWARDS    and leftwardIncursion\
-                            or startingEdgeDirection == DIRECTION_UPWARDS       and touchingEdgeDirection == DIRECTION_UPWARDS      and rightwardIncursion\
-                            or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_RIGHTWARDS   and rightwardIncursion:
+                            or startingEdgeDirection == DIRECTION_LEFTWARDS     and touchingEdgeDirection == DIRECTION_DOWNWARDS \
+                            or startingEdgeDirection == DIRECTION_LEFTWARDS     and touchingEdgeDirection == DIRECTION_LEFTWARDS    and leftwardIncursion \
+                            or startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_LEFTWARDS    and leftwardIncursion \
+                            or startingEdgeDirection == DIRECTION_UPWARDS       and touchingEdgeDirection == DIRECTION_UPWARDS      and rightwardIncursion \
+                            or startingEdgeDirection == DIRECTION_UPWARDS       and touchingEdgeDirection == DIRECTION_RIGHTWARDS   and rightwardIncursion \
+                            or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_RIGHTWARDS   and rightwardIncursion \
+                            or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_UPWARDS      and rightwardIncursion:
                             startingIncurringEdge.end = board.firstEdgeBuffer.start
                             startingIncurringEdge.next = board.firstEdgeBuffer
                             touchingEdge.start = edge.end
@@ -175,7 +176,7 @@ def main():
                         else:
                             oldFirstEdge = board.firstEdgeBuffer
                             board.firstEdgeBuffer = reverseLinkedList(board.firstEdgeBuffer)
-
+                            
                             startingIncurringEdge.start = oldFirstEdge.end
                             touchingEdge.end = board.firstEdgeBuffer.start
                             touchingEdge.next = board.firstEdgeBuffer
