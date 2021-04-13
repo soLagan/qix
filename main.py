@@ -6,26 +6,26 @@ from pygame.locals import *
 import pygame.event;
 import sys
 import math
-import shapely
 from shapely.geometry.point import Point
+import copy
+import random
 
 from board import Board, DIRECTION_DOWNWARDS, DIRECTION_LEFTWARDS, DIRECTION_RIGHTWARDS, DIRECTION_UPWARDS, Edge
 from boardObjects import Marker
 
-fps = 30
-fpsclock=pygame.time.Clock()
 
 # To be removed, waiting on UI elements to be implemented first
-# pygame.display.init()
-# mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
-# resized = pygame.transform.scale(mysurface, (160, 100))
+
 # pygame.display.update()
 
-level = 4
-# level = int(input("Enter the you the Level you wish to play [1-4]: "))
-# print("Entering Level {}...".format(level))
-
 def main():
+    fpsclock=pygame.time.Clock()
+
+    level = 4
+
+    # level = int(input("Enter the you the Level you wish to play [1-4]: "))
+    # print("Entering Level {}...".format(level))
+
     print("Creating Board...")
 
     board = Board()
@@ -33,7 +33,15 @@ def main():
 
     print("Start!")
 
-    player = board.getMarker()  # BoardObjects can only be accessed through the board
+    # BoardObjects can only be accessed through the board
+    player = board.getMarker()
+    sparx1 = board.getSparx1()
+    sparx2 = board.getSparx2()
+    qix = board.getQix()
+
+    sparxHolder = [sparx1,sparx2]
+
+    collisionTime = 0
 
     running = True
 
@@ -88,14 +96,111 @@ def main():
                 handleIncursion(player, board, moveVector, previousMoveVector, startingIncurringEdge)
                 previousMoveVector = moveVector
 
-        board.draw() # draw all objects
+        # General Enemy Movement:
+        # Qix and Sparx both use a random movement algorithm
+        # 1. They will generate a movelist based on the adjacent points to their current position
+        # 2. Filter through movelist checking if a move satisfies the specific criteria
+        # 3. Choose a random move based on the moves that have been screened
 
-        for event in pygame.event.get(): # Check for quit event (closing window)
+        # For the Sparx's
+        for sparx in sparxHolder:
+
+            if sparx:
+                sparx.generateMoves()
+                moveList = []
+
+                for move in sparx.possibleMoves:
+
+                    if move in sparx.tail:  # Sparx tail to prevent backtracking
+                        continue
+                    
+                    prevX = copy.deepcopy(sparx.x)
+                    prevY = copy.deepcopy(sparx.y)
+
+                    sparx.updateLocation(move[0], move[1])
+
+                    touchingEdge = currentEdge(sparx,board)
+
+                    if not touchingEdge:
+                        sparx.updateLocation(prevX, prevY)
+                    else:
+                        moveList.append(move)
+
+                if moveList:
+                    move = random.choice(moveList)
+                    sparx.updateTail((move[0], move[1]))
+                    sparx.updateLocation(move[0], move[1]) 
+                    
+                sparx.resetMoves()
+
+        # Qix
+        if qix:
+            qix.generateMoves() # Generates moves based on the position of Rect.center
+            moveList = []
+
+            for move in qix.possibleMoves:
+                prevX = copy.deepcopy(qix.x)
+                prevY = copy.deepcopy(qix.y)
+
+                qix.updateLocation(move[0], move[1])
+                touchingEdge = currentEdge(qix, board)
+
+                if touchingEdge:
+                    qix.updateLocation(prevX, prevY)
+                else:
+                    moveList.append(move)
+
+            if moveList:
+                move = random.choice(moveList)
+                # -4 to counteract the offset of using Rect.center for generating moves
+                qix.updateLocation(move[0]-4, move[1]-4) 
+
+            qix.resetMoves()
+
+        board.draw()
+
+        if board.collide():
+            collisionTime = pygame.time.get_ticks()
+            player.toggleInvincibility(True)
+
+        if pygame.time.get_ticks() - collisionTime > 1000:
+            collisionTime = 0
+            player.toggleInvincibility(False)
+
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-            if event == VIDEORESIZE: # Check for resize
-                mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
+
+        # for event in pygame.event.get(): # Check for quit event (closing window)
+        #     if event.type == pygame.QUIT:
+        #         running = False
+        #         pygame.quit()
+        #     if event == VIDEORESIZE: # Check for resize
+        #         mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
+def currentEdge(obj, board:Board):
+    """
+    Finds an edge that corresponds to the players current position.
+        Returns: Edge if an edge was found. Otherwise: None
+    """
+    edge = board.firstEdge
+    if posInRange(edge.start, edge.end, (obj.x, obj.y)):
+        return edge
+    
+    # Move to the next element    
+    edge = edge.next
+    while edge != board.firstEdge:
+        if posInRange(edge.start, edge.end, (obj.x, obj.y)):
+            return edge
+        edge = edge.next
+    return None
+        
+def posInRange(start, end, position):
+    
+    return inRange(start[0], end[0], position[0]) and inRange(start[1], end[1], position[1])
+
+def inRange(minVal, maxVal, target):
+    return min(minVal, maxVal) <= target and target <= max(minVal, maxVal)
 
 def handleIncursion(player, board, moveVector, previousMoveVector, startingIncurringEdge):
     newPlayerPos = Point(player.x + moveVector[0], player.y + moveVector[1])
@@ -263,29 +368,5 @@ def limitVectorDirection(vector):
         return (0, math.copysign(1, vector[1]))
     
     return (0,0)
-
-def currentEdge(obj, board):
-    """
-    Finds an edge that corresponds to the players current position.
-        Returns: Edge if an edge was found. Otherwise: None
-    """
-    edge = board.firstEdge
-    if posInRange(edge.start, edge.end, (obj.x, obj.y)):
-        return edge
-    
-    # Move to the next element    
-    edge = edge.next
-    while edge != board.firstEdge:
-        if posInRange(edge.start, edge.end, (obj.x, obj.y)):
-            return edge
-        edge = edge.next
-    return None
-        
-def posInRange(start, end, position):
-    
-    return inRange(start[0], end[0], position[0]) and inRange(start[1], end[1], position[1])
-
-def inRange(minVal, maxVal, target):
-    return min(minVal, maxVal) <= target and target <= max(minVal, maxVal)
 
 main()
