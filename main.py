@@ -132,8 +132,8 @@ def main():
                         touchingEdgeDirection = touchingEdge.getDirection()
                         startingEdgeDirection = startingIncurringEdge.getDirection()
                         
-                        rightwardIncursion = board.firstEdgeBuffer.start[0] < edge.start[0]
-                        leftwardIncursion = board.firstEdgeBuffer.start[0] > edge.start[0]
+                        rightwardIncursion = board.firstEdgeBuffer.start[0] < edge.end[0]
+                        leftwardIncursion = board.firstEdgeBuffer.start[0] > edge.end[0]
                         
                         # Accept incursions from:
                         #   - downwards to upwards (rightward horizontal incursion)
