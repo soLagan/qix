@@ -234,19 +234,19 @@ def limitVectorDirection(vector):
     
     return (0,0)
 
-def currentEdge(player:Marker, board:Board):
+def currentEdge(obj, board):
     """
     Finds an edge that corresponds to the players current position.
         Returns: Edge if an edge was found. Otherwise: None
     """
     edge = board.firstEdge
-    if posInRange(edge.start, edge.end, (player.x, player.y)):
+    if posInRange(edge.start, edge.end, (obj.x, obj.y)):
         return edge
     
     # Move to the next element    
     edge = edge.next
     while edge != board.firstEdge:
-        if posInRange(edge.start, edge.end, (player.x, player.y)):
+        if posInRange(edge.start, edge.end, (obj.x, obj.y)):
             return edge
         edge = edge.next
     return None
