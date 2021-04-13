@@ -7,6 +7,7 @@ import pygame.event;
 import sys
 import math
 import shapely
+from shapely.geometry.point import Point
 
 from board import Board, DIRECTION_DOWNWARDS, DIRECTION_LEFTWARDS, DIRECTION_RIGHTWARDS, DIRECTION_UPWARDS, Edge
 from boardObjects import Marker
@@ -69,9 +70,9 @@ def main():
         if keys[pygame.K_SPACE]:
             # If the player is currently touching the edge while doing an incursion, and if the stored incursion is of length 1, initialise the environment
             # If the player is not currently incurring, initialise the environment
-            if currentEdge(player, board) and board.getMarker().isPushing() and board.edgesBuffer == board.firstEdgeBuffer\
-                or not board.getMarker().isPushing():
-                board.getMarker().setIsPushing(True)
+            if currentEdge(player, board) and player.isPushing() and board.edgesBuffer == board.firstEdgeBuffer\
+                or not player.isPushing():
+                player.setIsPushing(True)
 
                 playerPos = (player.x, player.y)
                 board.edgesBuffer = Edge(playerPos, None)
@@ -79,53 +80,10 @@ def main():
                 board.firstEdgeBuffer = board.edgesBuffer
                 previousMoveVector = moveVector
                 startingIncurringEdge = currentEdge(player, board)
-
-            # Try moving
-            # The player can move anywhere, BUT:
-            #   - they cannot travel backwards along their path, AND
-            #   - when they change vector direction they close one edge and start a new one
-            edge = board.edgesBuffer
-
-            # The direction changed
-            if not currentEdge(player, board) and moveVector != (0,0) and previousMoveVector != moveVector:
-                # Finish this edge and start a new one
-                playerPos = (player.x, player.y)
-
-                if playerPos != edge.start: 
-                    edge.end = playerPos
-
-                    edge.next = Edge(edge.end, None)
-                    edge.next.previous = edge
-
-                    board.edgesBuffer = edge.next
-                    previousMoveVector = moveVector
-
-            elif moveVector != (0,0) and (board.playableAreaPolygon.contains(shapely.geometry.Point(player.x + moveVector[0], player.y + moveVector[1])) or board.playableAreaPolygon.touches(shapely.geometry.Point(player.x + moveVector[0], player.y + moveVector[1]))): # Probably refactor this LOL (put this in a method or something)
-                player.updateLocation(player.x + moveVector[0], player.y + moveVector[1])
-                touchingEdge = currentEdge(player, board)
-                
-                # If an edge is being touched after the movement, the incursion is finished
-                if touchingEdge and board.firstEdgeBuffer != board.edgesBuffer:
-                    # Close the current edge
-                    playerPos = (player.x, player.y)
-                    edge.end = playerPos
-                    
-                    # If same edge, figure out which one is first by comparing the 
-                    if touchingEdge == startingIncurringEdge:
-                        handleSameEdgeIncursion(touchingEdge, edge, board)
-                    else:
-                        handleCrossEdgeIncursion(touchingEdge, startingIncurringEdge, edge, board)
-                    
-                    # Update the firstEdge if it was removed during the incursion
-                    
-                    board.firstEdge = edge
-                    # Insert the buffer into the edge
-                    board.getMarker().setIsPushing(False)
-                    board.firstEdgeBuffer = None
-                    board.edgesBuffer = None
-                    board.playableAreaPolygon = board.remakePlayableArea()
-                    print("Captured Area: ", int(round(100 - 100 * board.playableAreaPolygon.area / board.startingAreaPolygon.area)), "%")
-
+            
+            if player.isPushing():
+                handleIncursion(player, board, moveVector, previousMoveVector, startingIncurringEdge)
+                previousMoveVector = moveVector
 
         board.draw() # draw all objects
 
@@ -135,6 +93,64 @@ def main():
                 pygame.quit()
             if event == VIDEORESIZE: # Check for resize
                 mysurface = pygame.display.set_mode((event.w,event.h), pygame.RESIZABLE)
+
+def handleIncursion(player, board, moveVector, previousMoveVector, startingIncurringEdge):
+    newPlayerPos = Point(player.x + moveVector[0], player.y + moveVector[1])
+    newPositionIsContainedInArea = board.playableAreaPolygon.contains(newPlayerPos)
+    newPositionIsTouchingArea = board.playableAreaPolygon.touches(newPlayerPos)
+
+    # If the player is attempint to move into an invalid section, stop the incursion
+    if not newPositionIsContainedInArea and not newPositionIsTouchingArea:
+        board.getMarker().setIsPushing(False)
+        previousMoveVector = None
+        startingIncurringEdge = None
+        return
+
+    # Try moving
+    # The player can move anywhere, BUT:
+    #   - they cannot travel backwards along their path, AND
+    #   - when they change vector direction they close one edge and start a new one
+    edge = board.edgesBuffer
+
+    # The direction changed
+    if not currentEdge(player, board) and moveVector != (0,0) and previousMoveVector != moveVector:
+        # Finish this edge and start a new one
+        playerPos = (player.x, player.y)
+
+        if playerPos != edge.start: 
+            edge.end = playerPos
+
+            edge.next = Edge(edge.end, None)
+            edge.next.previous = edge
+
+            board.edgesBuffer = edge.next
+
+    elif moveVector != (0,0): # Probably refactor this LOL (put this in a method or something)
+        print("Moving user")
+        player.updateLocation(player.x + moveVector[0], player.y + moveVector[1])
+        touchingEdge = currentEdge(player, board)
+        
+        # If an edge is being touched after the movement, the incursion is finished
+        if touchingEdge and board.firstEdgeBuffer != board.edgesBuffer:
+            # Close the current edge
+            playerPos = (player.x, player.y)
+            edge.end = playerPos
+            
+            # If same edge, figure out which one is first by comparing the 
+            if touchingEdge == startingIncurringEdge:
+                handleSameEdgeIncursion(touchingEdge, edge, board)
+            else:
+                handleCrossEdgeIncursion(touchingEdge, startingIncurringEdge, edge, board)
+            
+            # Update the firstEdge if it was removed during the incursion
+            
+            board.firstEdge = edge
+            # Insert the buffer into the edge
+            board.getMarker().setIsPushing(False)
+            board.firstEdgeBuffer = None
+            board.edgesBuffer = None
+            board.playableAreaPolygon = board.remakePlayableArea()
+            print("Captured Area: ", int(round(100 - 100 * board.playableAreaPolygon.area / board.startingAreaPolygon.area)), "%")
 
 def handleCrossEdgeIncursion(touchingEdge, startingIncurringEdge, edge, board):
     touchingEdgeDirection = touchingEdge.getDirection()
