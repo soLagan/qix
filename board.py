@@ -56,8 +56,10 @@ class Board():
         self.firstEdgeBuffer = None
         self.edgesBuffer = None   # Contains a linked list reference on the current push
         # self.playableAreaPolygon = None # Contains Polygon object representing player's non-push movable area. Polygon is useful for calculating area and determining 'insideness' for collisions
+        # self.startingAreaPolygon = None # Used to measure captured area
 
         initialPoints = [(36,6), (36,94), (124, 94), (124,6)]
+        self.startingAreaPolygon = shapely.geometry.Polygon(initialPoints)
 
         # Initialise four corners
         self.firstEdge = Edge(initialPoints[0], initialPoints[1])

@@ -188,6 +188,7 @@ def main():
                     board.firstEdgeBuffer = None
                     board.edgesBuffer = None
                     board.playableAreaPolygon = board.remakePlayableArea()
+                    print("Captured Area: ", int(round(100 - 100 * board.playableAreaPolygon.area / board.startingAreaPolygon.area)), "%")
 
 
         board.draw() # draw all objects
