@@ -50,7 +50,7 @@ class Board():
 
         pygame.display.init()
         pygame.display.set_caption('QIX')
-        self.mysurface = pygame.display.set_mode((1280, 800), pygame.RESIZABLE)
+        self.mysurface = pygame.display.set_mode((1280, 800))
         self.resized = pygame.transform.scale(self.mysurface, (160, 100))
 
     def gameStart(self, level):
