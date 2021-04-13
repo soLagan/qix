@@ -152,19 +152,28 @@ class GUI:
             # presses the EXIT button
             if event == "Exit" or event == sg.WIN_CLOSED:
                 print('Exiting')
+                exit = True
                 break
             elif event == "Easy":
                 self.set_difficulty("Easy")
+                exit = False
                 break
             elif event == "Intermediate":
                 self.set_difficulty("Intermediate")
+                exit = False
                 break
             elif event == "Insane":
                 self.set_difficulty("Insane")
+                exit = False
                 break
 
         initial_window.close()
-        return self.selected_difficulty
+
+        if not exit:
+            self.selected_difficulty
+            return True
+            
+        return False
 
     def make_game_over_window(self):
         self.setup_theme()

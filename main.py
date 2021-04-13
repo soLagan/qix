@@ -25,7 +25,12 @@ def main():
         fpsclock=pygame.time.Clock()
 
         gui = GUI()
-        level = int(gui.render_initial_screen())
+
+        if gui.render_initial_screen():
+            level = int(gui.selected_difficulty)
+        else:
+            break
+
         print("Creating Board...")
 
         board = Board()
