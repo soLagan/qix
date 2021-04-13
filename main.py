@@ -108,7 +108,7 @@ def main():
                     move = random.choice(moveList)
                     sparx.updateTail((move[0], move[1]))
                     sparx.updateLocation(move[0], move[1]) 
-
+                    
                 sparx.resetMoves()
 
         # Qix
@@ -150,8 +150,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
-
-
+       
 def limitVectorDirection(vector):
     """
     Converts a vector to (+-1,0), (0,+-1), or (0,0).
@@ -190,5 +189,6 @@ def posInRange(start, end, position):
 
 def inRange(minVal, maxVal, target):
     return min(minVal, maxVal) <= target and target <= max(minVal, maxVal)
+  
 
 main() 
