@@ -6,11 +6,12 @@ class GUI:
 
     def __init__(self):
         self.selected_difficulty = "NONE"
-        self.bg_color = '#0EFFE9'
-        self.btn_bg_color = '#FF0E83'
-        self.btn_text_color = '#ffffff'
+        self.bg_color = '#005152'
+        self.btn_bg_color = '#009e69'
+        self.btn_bg_color1 = '#d42d31'
+        self.btn_text_color = '#090808' 
         self.font = 'Terminal'
-        self.text_color = '#000000'
+        self.text_color = '#f6e8b4'
         self.user_score = 0
         self.user_score_key = 'User_Score'
         self.update = {'update': False, 'selected_difficulty': False, 'bg_color': False, 'btn_bg_color': False,
@@ -93,9 +94,9 @@ class GUI:
         self.setup_theme()
 
         layout_initial = [
-            [sg.Text("WELCOME TO QIX", justification='center', size=(1280, 3), pad=((0, 0), (200, 0)),
+            [sg.Text("QiX", justification='center', size=(1280, 4), font=("pixelmix bold", "40"), pad=((0, 0), (200, 0)),
                      text_color=self.text_color, background_color=self.bg_color)],
-            [sg.Text("Select Difficulty", justification='center', size=(1280, 3),
+            [sg.Text("Select Difficulty", justification='center', size=(1280, 3),font=("pixelmix bold", "12"),
                      text_color=self.text_color, background_color=self.bg_color)],
             [sg.Button("Easy", size=(15, 2), pad=((260, 45), (10, 10)),
                        button_color=(self.btn_text_color, self.btn_bg_color)),
@@ -104,8 +105,7 @@ class GUI:
              sg.Button("Insane", size=(15, 2), pad=((45, 45), (10, 10)),
                        button_color=(self.btn_text_color, self.btn_bg_color))],
             [sg.Button("Exit", size=(15, 2), pad=((538, 0), (50, 50)),
-                       button_color=(self.btn_text_color, self.btn_bg_color))],
-
+                       button_color=(self.btn_text_color, self.btn_bg_color1))],
         ]
 
         # Create the window
@@ -171,14 +171,14 @@ class GUI:
 
         # Create the layout
         layout_game_over = [
-            [sg.Text("GAME OVER", justification='center', size=(1280, 3), pad=((0, 0), (200, 0)),
+            [sg.Text("Game Over", justification='center', size=(1280, 3), font=("pixelmix bold", "40"), pad=((0, 0), (200, 0)),
                      text_color=self.text_color, background_color=self.bg_color)],
             [sg.Text("Area Captured: " + str(self.user_score), justification='center', size=(1280, 3),
                      text_color=self.text_color, background_color=self.bg_color, key=self.user_score_key)],
             [sg.Button("Restart", size=(15, 2), pad=((538, 0), (0, 0)),
                        button_color=(self.btn_text_color, self.btn_bg_color))],
             [sg.Button("Exit", size=(15, 2), pad=((538, 0), (50, 50)),
-                       button_color=(self.btn_text_color, self.btn_bg_color))],
+                       button_color=(self.btn_text_color, self.btn_bg_color1))],
 
         ]
 
@@ -252,8 +252,8 @@ if __name__ == "__main__":
     chosen = 'Game Over'
     the_GUI.create_screen(choices[chosen])
 
-    Colors_light = ['#33cc33', '#0EFFE9', '#cc99ff', '#ffff66', '#ffb384', '#c2cbb8']
-    Colors_dark = ['#ff0000', '#990000', '#552b00', '#660033', '#552b00', '#FF0E83']
+    Colors_light = ['#0099CC', '#0EFFE9', '#cc99ff', '#ffff66', '#ffb384', '#c2cbb8']
+    Colors_dark = ['#009933', '#990000', '#552b00', '#660033', '#552b00', '#FF0E83']
     Difficulties = ['Easy', 'Intermediate', 'Insane', 'False Alarm', 'Not working', 'Useless indeed']
     line = {'Start': "Type CD & press enter to change selected difficulty.\n",
             'Game Over': "Type CS & press enter to change user score.\n"}
