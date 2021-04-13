@@ -36,6 +36,9 @@ def main():
     player = board.getMarker()  # BoardObjects can only be accessed through the board
 
     running = True
+
+    previousMoveVector = None
+    startingIncurringEdge = None
     while running:
 
         fpsclock.tick(30)
@@ -126,7 +129,6 @@ def handleIncursion(player, board, moveVector, previousMoveVector, startingIncur
             board.edgesBuffer = edge.next
 
     elif moveVector != (0,0): # Probably refactor this LOL (put this in a method or something)
-        print("Moving user")
         player.updateLocation(player.x + moveVector[0], player.y + moveVector[1])
         touchingEdge = currentEdge(player, board)
         
@@ -184,7 +186,6 @@ def handleCrossEdgeIncursion(touchingEdge, startingIncurringEdge, edge, board):
         or startingEdgeDirection == DIRECTION_UPWARDS       and touchingEdgeDirection == DIRECTION_RIGHTWARDS   and rightwardIncursion \
         or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_RIGHTWARDS   and rightwardIncursion \
         or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_UPWARDS      and rightwardIncursion:
-        print("RIGHTWARDS")
         startingIncurringEdge.end = board.firstEdgeBuffer.start
         startingIncurringEdge.next = board.firstEdgeBuffer
         touchingEdge.start = edge.end
@@ -199,7 +200,6 @@ def handleCrossEdgeIncursion(touchingEdge, startingIncurringEdge, edge, board):
     #   - leftwards to rightwards (downward vertical incursion)
     else:
         printList(board.firstEdgeBuffer)
-        print(f"LEFTWARDS {startingEdgeDirection} {touchingEdgeDirection} {rightwardIncursion} {board.firstEdgeBuffer.start[0]} {edge.start[0]}")
         oldFirstEdge = board.firstEdgeBuffer
         board.firstEdgeBuffer = reverseLinkedList(board.firstEdgeBuffer)
         
