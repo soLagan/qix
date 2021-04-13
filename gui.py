@@ -21,13 +21,13 @@ class GUI:
         self.update['update'] = True
         self.update['selected_difficulty'] = True
         if new_difficulty == "Easy":
-            self.selected_difficulty = "EASY"
+            self.selected_difficulty = 2
             print('Difficulty Selected: Easy')
         elif new_difficulty == "Intermediate":
-            self.selected_difficulty = "INTERMEDIATE"
+            self.selected_difficulty = 3
             print('Difficulty Selected: Intermediate')
         elif new_difficulty == "Insane":
-            self.selected_difficulty = "INSANE"
+            self.selected_difficulty = 4
             print('Difficulty Selected: INSANE')
         else:
             print('Invalid Selection, current difficulty: ' + self.selected_difficulty)
@@ -173,7 +173,7 @@ class GUI:
         layout_game_over = [
             [sg.Text("GAME OVER", justification='center', size=(1280, 3), pad=((0, 0), (200, 0)),
                      text_color=self.text_color, background_color=self.bg_color)],
-            [sg.Text("Area Captured: " + str(self.user_score), justification='center', size=(1280, 3),
+            [sg.Text("Area Captured: " + str(self.user_score) + "%", justification='center', size=(1280, 3),
                      text_color=self.text_color, background_color=self.bg_color, key=self.user_score_key)],
             [sg.Button("Restart", size=(15, 2), pad=((538, 0), (0, 0)),
                        button_color=(self.btn_text_color, self.btn_bg_color))],
@@ -198,7 +198,7 @@ class GUI:
             self.update['selected_difficulty'] = False
         elif self.update['user_score']:
             self.update['user_score'] = False
-            window[self.user_score_key].update("Area Captured: " + str(self.user_score))
+            window[self.user_score_key].update("Area Captured: " + str(self.user_score) + "%")
         elif (self.update['bg_color'] or self.update['btn_bg_color'] or self.update['btn_text_color']
               or self.update['font'] or self.update['text_color'] or self.update['user_score_key']):
             self.update['bg_color'] = False
@@ -228,16 +228,11 @@ class GUI:
             # presses the EXIT button
             if event == "Exit" or event == sg.WIN_CLOSED:
                 print('Exiting')
-                break
+                return False
             elif event == "Restart":
                 print('Restarting Game')
-                restart = True
-                break
-
-        game_over_window.close()
-
-        if restart:
-            self.render_initial_screen()
+                game_over_window.close()
+                return True
 
     def create_screen(self, choice):
         if choice == "START":
@@ -246,10 +241,10 @@ class GUI:
             self.render_game_over_screen()
 
 
-if __name__ == "__main__":
+def main():
     the_GUI = GUI()
     choices = {'Start': 'START', 'Game Over': 'GAME_OVER'}
-    chosen = 'Game Over'
+    chosen = 'Start'
     the_GUI.create_screen(choices[chosen])
 
     Colors_light = ['#33cc33', '#0EFFE9', '#cc99ff', '#ffff66', '#ffb384', '#c2cbb8']

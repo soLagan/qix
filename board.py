@@ -34,6 +34,8 @@ class Board():
         self.edgesBuffer = []       # Contains edges on Current push
         self.entities = []          # Contains all boardObjects in play
 
+        self.score = 0             # Percent of the board captured
+
         self.firstEdgeBuffer = None
 
         initialPoints = [(36,6), (36,94), (124, 94), (124,6)]
@@ -73,7 +75,7 @@ class Board():
         # All Entities have fixed Starting positions
         # Sparx Tails will determine the starting direction 
 
-        player = Marker(80, 94, 5, False)
+        player = Marker(80, 94, 1, False)
         self.entities.append(player)
 
         if level >= 2:
