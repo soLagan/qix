@@ -5,6 +5,7 @@ from random import randint
 class GUI:
 
     def __init__(self):
+        self.end_text = "None"
         self.selected_difficulty = "NONE"
         self.bg_color = '#005152'
         self.btn_bg_color = '#009e69'
@@ -22,13 +23,13 @@ class GUI:
         self.update['update'] = True
         self.update['selected_difficulty'] = True
         if new_difficulty == "Easy":
-            self.selected_difficulty = "EASY"
+            self.selected_difficulty = 2
             print('Difficulty Selected: Easy')
         elif new_difficulty == "Intermediate":
-            self.selected_difficulty = "INTERMEDIATE"
+            self.selected_difficulty = 3
             print('Difficulty Selected: Intermediate')
         elif new_difficulty == "Insane":
-            self.selected_difficulty = "INSANE"
+            self.selected_difficulty = 4
             print('Difficulty Selected: INSANE')
         else:
             print('Invalid Selection, current difficulty: ' + self.selected_difficulty)
@@ -152,28 +153,37 @@ class GUI:
             # presses the EXIT button
             if event == "Exit" or event == sg.WIN_CLOSED:
                 print('Exiting')
+                exit = True
                 break
             elif event == "Easy":
                 self.set_difficulty("Easy")
+                exit = False
                 break
             elif event == "Intermediate":
                 self.set_difficulty("Intermediate")
+                exit = False
                 break
             elif event == "Insane":
                 self.set_difficulty("Insane")
+                exit = False
                 break
 
         initial_window.close()
-        return self.selected_difficulty
+
+        if not exit:
+            self.selected_difficulty
+            return True
+            
+        return False
 
     def make_game_over_window(self):
         self.setup_theme()
 
         # Create the layout
         layout_game_over = [
-            [sg.Text("Game Over", justification='center', size=(1280, 3), font=("pixelmix bold", "40"), pad=((0, 0), (200, 0)),
+            [sg.Text(self.end_text, justification='center', size=(1280, 3),font=("pixelmix bold", "40"), pad=((0, 0), (200, 0)),
                      text_color=self.text_color, background_color=self.bg_color)],
-            [sg.Text("Area Captured: " + str(self.user_score), justification='center', size=(1280, 3),
+            [sg.Text("Area Captured: " + str(self.user_score) + "%", justification='center', size=(1280, 3),
                      text_color=self.text_color, background_color=self.bg_color, key=self.user_score_key)],
             [sg.Button("Restart", size=(15, 2), pad=((538, 0), (0, 0)),
                        button_color=(self.btn_text_color, self.btn_bg_color))],
@@ -198,7 +208,7 @@ class GUI:
             self.update['selected_difficulty'] = False
         elif self.update['user_score']:
             self.update['user_score'] = False
-            window[self.user_score_key].update("Area Captured: " + str(self.user_score))
+            window[self.user_score_key].update("Area Captured: " + str(self.user_score) + "%")
         elif (self.update['bg_color'] or self.update['btn_bg_color'] or self.update['btn_text_color']
               or self.update['font'] or self.update['text_color'] or self.update['user_score_key']):
             self.update['bg_color'] = False
@@ -213,6 +223,10 @@ class GUI:
         return new_window
 
     def render_game_over_screen(self):
+        if int(self.user_score) >= 50:
+            self.end_text = "You Won"
+        else:
+            self.end_text = "Game Over"
         # Boolean which checks whether to restart game or not
         restart = False
         game_over_window = self.make_game_over_window()
@@ -228,16 +242,11 @@ class GUI:
             # presses the EXIT button
             if event == "Exit" or event == sg.WIN_CLOSED:
                 print('Exiting')
-                break
+                return False
             elif event == "Restart":
                 print('Restarting Game')
-                restart = True
-                break
-
-        game_over_window.close()
-
-        if restart:
-            self.render_initial_screen()
+                game_over_window.close()
+                return True
 
     def create_screen(self, choice):
         if choice == "START":
@@ -246,10 +255,10 @@ class GUI:
             self.render_game_over_screen()
 
 
-if __name__ == "__main__":
+def main():
     the_GUI = GUI()
     choices = {'Start': 'START', 'Game Over': 'GAME_OVER'}
-    chosen = 'Game Over'
+    chosen = 'Start'
     the_GUI.create_screen(choices[chosen])
 
     Colors_light = ['#0099CC', '#0EFFE9', '#cc99ff', '#ffff66', '#ffb384', '#c2cbb8']
