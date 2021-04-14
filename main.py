@@ -113,7 +113,10 @@ def main():
                     if moveList:
                         move = random.choice(moveList)
                         sparx.updateTail((move[0], move[1]))
-                        sparx.updateLocation(move[0], move[1]) 
+                        sparx.updateLocation(move[0], move[1])
+                    else:
+                        gameLoop = False
+                        pygame.quit()
                         
                     sparx.resetMoves()
 
