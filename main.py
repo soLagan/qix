@@ -291,7 +291,8 @@ def handleCrossEdgeIncursion(touchingEdge, startingIncurringEdge, edge, board):
         or startingEdgeDirection == DIRECTION_UPWARDS       and touchingEdgeDirection == DIRECTION_RIGHTWARDS   and rightwardIncursion \
         or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_RIGHTWARDS   and rightwardIncursion \
         or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_UPWARDS      and rightwardIncursion\
-        or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_DOWNWARDS    and rightwardIncursion:
+        or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_DOWNWARDS    and rightwardIncursion\
+        or startingEdgeDirection == DIRECTION_LEFTWARDS     and touchingEdgeDirection == DIRECTION_UPWARDS      and leftwardIncursion\
         startingIncurringEdge.end = board.firstEdgeBuffer.start
         startingIncurringEdge.next = board.firstEdgeBuffer
         touchingEdge.start = edge.end
