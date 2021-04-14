@@ -279,7 +279,7 @@ def handleCrossEdgeIncursion(touchingEdge, startingIncurringEdge, edge, board):
     #   - upwards to upwards. Same reasoning as above
     #   - rightwards to rightwards. Same reasoning as above
     #   - upwards to rightwards
-    if     startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_UPWARDS \
+    if     startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_UPWARDS and rightwardIncursion\
         or startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_DOWNWARDS \
         or startingEdgeDirection == DIRECTION_DOWNWARDS     and touchingEdgeDirection == DIRECTION_RIGHTWARDS \
         or startingEdgeDirection == DIRECTION_RIGHTWARDS    and touchingEdgeDirection == DIRECTION_LEFTWARDS \
