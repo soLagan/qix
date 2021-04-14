@@ -5,6 +5,7 @@ from random import randint
 class GUI:
 
     def __init__(self):
+
         self.end_text = "None"
         self.selected_difficulty = "NONE"
         self.bg_color = '#005152'
@@ -95,6 +96,7 @@ class GUI:
         self.setup_theme()
 
         layout_initial = [
+
             [sg.Text("QiX", justification='center', size=(1280, 4), font=("pixelmix bold", "40"), pad=((0, 0), (200, 0)),
                      text_color=self.text_color, background_color=self.bg_color)],
             [sg.Text("Select Difficulty", justification='center', size=(1280, 3),font=("pixelmix bold", "12"),
@@ -107,6 +109,7 @@ class GUI:
                        button_color=(self.btn_text_color, self.btn_bg_color))],
             [sg.Button("Exit", size=(15, 2), pad=((538, 0), (50, 50)),
                        button_color=(self.btn_text_color, self.btn_bg_color1))],
+
         ]
 
         # Create the window
@@ -248,12 +251,14 @@ class GUI:
                 game_over_window.close()
                 return True
 
+        #if restart:
+        #    self.render_initial_screen()
+
     def create_screen(self, choice):
         if choice == "START":
             self.render_initial_screen()
         elif choice == "GAME_OVER":
             self.render_game_over_screen()
-
 
 def main():
     the_GUI = GUI()
