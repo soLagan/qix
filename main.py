@@ -186,6 +186,9 @@ def main():
             if player.getHealth() == 0:
                 pygame.quit()
                 break
+            if board.score >= 75:
+                pygame.quit()
+                break
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -297,6 +300,7 @@ def handleIncursion(player, board, moveVector, previousMoveVector, startingIncur
             board.firstEdgeBuffer = None
             board.edgesBuffer = None
             board.playableAreaPolygon = board.remakePlayableArea()
+            board.updateScore(int(round(100 - 100 * board.playableAreaPolygon.area / board.startingAreaPolygon.area)))
             print("Captured Area: ", int(round(100 - 100 * board.playableAreaPolygon.area / board.startingAreaPolygon.area)), "%")
 
 def handleCrossEdgeIncursion(touchingEdge, startingIncurringEdge, edge, board):
