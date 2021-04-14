@@ -41,6 +41,13 @@ class Marker(Object):
 
         self.colour = pygame.Color(0,204,0) # Green
 
+    def updateLocation(self, x, y):
+        super().updateLocation(x, y)
+
+        # Update the position of the rect
+        self.theRect.x = x
+        self.theRect.y = y
+
     def isPushing(self):
         return self.pushState
 
