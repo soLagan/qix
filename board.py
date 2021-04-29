@@ -1,7 +1,15 @@
 from boardObjects import Marker, Qix, Sparx
 import pygame
 import copy
+import shapely
+from shapely import geometry
 
+DIRECTION_UPWARDS = (0, -1)
+DIRECTION_DOWNWARDS = (0, 1)
+DIRECTION_RIGHTWARDS = (1,0)
+DIRECTION_LEFTWARDS = (-1,0)
+
+# NOTE: USE.
 class Vertex():
     def __init__(self):
         self.x = 0
@@ -15,13 +23,25 @@ class Edge():
         self.previous = None
 
     def addAfter(self, new):
-        pass
+        # Any edge references in between self and the end of new will be discarded by Python Garbage Collection
+        
+        oldNext = self.next
+        oldEnd = self.end
+        self.next = new
+        self.end = new.start
+        while new.next != None: new = new.next
+        new.next = Edge(new.end, oldEnd)
 
-    def getMovementVector(self):
-        if self.start[0] == self.end[0]: return (0,1)
-        return (1,0)
-        # Turn an incursion into a polygon and use it to take out points from uncaptured space
+        new.next.next = oldNext
 
+    def getDirection(self):
+        if self.start[1] < self.end[1]: return DIRECTION_DOWNWARDS
+        elif self.start[1] > self.end[1]: return DIRECTION_UPWARDS
+        elif self.start[0] < self.end[0]: return DIRECTION_RIGHTWARDS
+        else: return DIRECTION_LEFTWARDS
+    
+    def __str__(self):
+        return f"EDGE: start: {self.start} end:{self.end}"
 class Board():
 
     def __init__(self):
@@ -37,8 +57,12 @@ class Board():
         self.score = 0             # Percent of the board captured
 
         self.firstEdgeBuffer = None
+        self.edgesBuffer = None   # Contains a linked list reference on the current push
+        # self.playableAreaPolygon = None # Contains Polygon object representing player's non-push movable area. Polygon is useful for calculating area and determining 'insideness' for collisions
+        # self.startingAreaPolygon = None # Used to measure captured area
 
         initialPoints = [(36,6), (36,94), (124, 94), (124,6)]
+        self.startingAreaPolygon = shapely.geometry.Polygon(initialPoints)
 
         # Initialise four corners
         self.firstEdge = Edge(initialPoints[0], initialPoints[1])
@@ -46,24 +70,18 @@ class Board():
         self.firstEdge.next.next = Edge(initialPoints[2], initialPoints[3])
         self.firstEdge.next.next.next = Edge(initialPoints[3], initialPoints[0])
         self.firstEdge.next.next.next.next = self.firstEdge
-
-
+        
         pygame.display.init()
         pygame.display.set_caption('QIX')
         self.mysurface = pygame.display.set_mode((1280, 800))
         self.resized = pygame.transform.scale(self.mysurface, (160, 100))
+        
+        self.playableAreaPolygon = self.remakePlayableArea()
 
     def gameStart(self, level):
+        self.createEntities(level)
+        self.initializeFonts()
         
-        # Construct mainBoard, starting edges of traversal, and uncaptured space
-        self.mainBoard = [ (x,y) for x in range(160) for y in range(100) if 35 < x < 125 and 5 < y < 95 ]
-
-        self.edges = [ (lmao) for lmao in self.mainBoard if (lmao[0] == 36 or lmao[0] == 124) or lmao[1] == 6 or lmao[1] == 94 ]
-        self.playableEdge = copy.deepcopy(self.edges)
-
-        self.uncaptured = [losing for losing in self.mainBoard if losing not in self.edges] 
-
-        return self.createEntities(level)
 
     def createEntities(self, level):
         # Level determines number of enemy entities:
@@ -90,8 +108,6 @@ class Board():
             qix = Qix(80, 50)
             self.entities.append(qix)
 
-        return self.initializeFonts()
-
     def initializeFonts(self):  # Putting this inside the constructor will crash pygame on restart attempts
         pygame.font.init()
         self.header = pygame.font.SysFont('Terminal', 60)
@@ -101,89 +117,13 @@ class Board():
         self.scorePercent = pygame.font.SysFont('Terminal', 100)
         self.scorePercentText = self.scorePercent.render(str(self.score) + "%", True, pygame.Color('white'))
 
-    def updateEdges(self):
-        avgX = 0
-        avgY = 0
-
-        for i in self.edgesBuffer:
-            self.edges.append(i)
-            self.playableEdge.append(i)
-
-            avgX+= i[0]
-            avgY+= i[1]
-
-        avgX /= len(self.edgesBuffer)
-        avgY /= len(self.edgesBuffer)
-
-        self.edgesBuffer = []
-
-        # Set starting point for fill capture to be the average coordinates of all points in the push
-        # Straight lines and lines that average to a point belonging to the buffer will capture the whole board lol
-        return self.fillCapture(int(avgX), int(avgY))
-
-    def fillCapture(self, x,y):             # Very costly method on a 100 by 100 pixel board (5+ seconds on most captures). Hence the scaled down board size
-        self.capturedBuffer.append((x,y))   # Append Starting point
-
-        for coor in self.capturedBuffer:    # Checks adjacent points if they are captured, otherwise capture space and append to buffer
-
-            if (coor[0]+1,coor[1]) in self.uncaptured and (coor[0]+1,coor[1]) not in self.capturedBuffer:
-                self.capturedBuffer.append((coor[0]+1,coor[1]))
-                self.uncaptured.remove((coor[0]+1,coor[1]))
-            
-            if (coor[0]-1,coor[1]) in self.uncaptured and (coor[0]-1,coor[1]) not in self.capturedBuffer:
-                self.capturedBuffer.append((coor[0]-1,coor[1]))
-                self.uncaptured.remove((coor[0]-1,coor[1]))
-            
-            if (coor[0],coor[1]+1) in self.uncaptured and (coor[0],coor[1]+1) not in self.capturedBuffer:
-                self.capturedBuffer.append((coor[0],coor[1]+1))
-                self.uncaptured.remove((coor[0],coor[1]+1))
-            
-            if (coor[0],coor[1]-1) in self.uncaptured and (coor[0],coor[1]-1) not in self.capturedBuffer:
-                self.capturedBuffer.append((coor[0],coor[1]-1))
-                self.uncaptured.remove((coor[0],coor[1]-1))
-
-        for i in self.capturedBuffer:
-            self.captured.append(i)
-
-        self.capturedBuffer = []
     
-        return
-
-
-    def updatePlayable(self): 
-
-        for i in self.edges:
-            
-            # Checks if edge can be removed and is diagonally adjacent to any uncaptured space
-            if not self.checkIfEdge(i) and i in self.playableEdge:
-                self.playableEdge.remove(i)
-
-        return
-
-
-    def checkIfEdge(self, coor):
-
-        if (coor[0]+1,coor[1]+1) in self.uncaptured:
-            return True
-
-        if (coor[0]-1,coor[1]+1) in self.uncaptured:
-            return True
-
-        if (coor[0]-1,coor[1]-1) in self.uncaptured:
-            return True
-
-        if (coor[0]+1,coor[1]-1) in self.uncaptured:
-            return True
-
-        return False
-    
-
     def updateScore(self, score):  # 50% of board must be captured to win
         self.score = score
         return self.setScoreText()
     
     def setScoreText(self):
-        self.scorePercentText = self.header.render(str(self.score) + "%", True, pygame.Color('white'))
+        self.scorePercentText = self.scorePercent.render(str(self.score) + "%", True, pygame.Color('white'))
         return
 
     def getMarker(self):
@@ -219,8 +159,10 @@ class Board():
                 return True
 
     def draw(self): # UI elements are also drawn here
-        self.resized.fill(0)
-
+        self.resized.fill(pygame.Color(0,0,0))
+        # self.resized.fill(0)
+        
+        # Iterate through the linked edges
         edge = self.firstEdge
         
         pygame.draw.line(self.resized, pygame.Color(210,105,30), edge.start, edge.end)
@@ -234,7 +176,7 @@ class Board():
         pygame.draw.line(self.resized, pygame.Color(210,105,30), edge.start, edge.end)
         
         edge = self.firstEdgeBuffer
-        while edge != self.edgesBuffer:
+        while edge and edge != self.edgesBuffer:
             if not edge: break
             if edge.start and edge.end:
                 pygame.draw.line(self.resized, pygame.Color(255,255,255), edge.start, edge.end)
@@ -254,3 +196,25 @@ class Board():
         self.mysurface.blit(self.scorePercentText, (1035,100))
 
         pygame.display.flip()
+
+    def validateMove(self, keyPress, incr):
+        return
+
+    def updateLocations(self):
+
+        return
+
+    def remakePlayableArea(self):  # Happens when an incursion is finished, to induct the incursion shape into the playable area
+        
+        iterator = self.firstEdge.next
+        shapeList = []
+
+        while True:
+            if iterator == self.firstEdge:
+                shapeList.append(iterator.end)
+                break
+            shapeList.append(iterator.end)
+            iterator = iterator.next
+        
+        shape = shapely.geometry.Polygon(shapeList)
+        return shape

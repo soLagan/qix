@@ -5,13 +5,15 @@ from random import randint
 class GUI:
 
     def __init__(self):
+
         self.end_text = "None"
         self.selected_difficulty = "NONE"
-        self.bg_color = '#0EFFE9'
-        self.btn_bg_color = '#FF0E83'
-        self.btn_text_color = '#ffffff'
+        self.bg_color = '#005152'
+        self.btn_bg_color = '#009e69'
+        self.btn_bg_color1 = '#d42d31'
+        self.btn_text_color = '#090808' 
         self.font = 'Terminal'
-        self.text_color = '#000000'
+        self.text_color = '#f6e8b4'
         self.user_score = 0
         self.user_score_key = 'User_Score'
         self.update = {'update': False, 'selected_difficulty': False, 'bg_color': False, 'btn_bg_color': False,
@@ -94,7 +96,8 @@ class GUI:
         self.setup_theme()
 
         layout_initial = [
-            [sg.Text("WELCOME TO QIX", justification='center', size=(1280, 3), pad=((0, 0), (200, 0)),
+
+            [sg.Text("QiX", justification='center', size=(1280, 4), pad=((0, 0), (200, 0)),
                      text_color=self.text_color, background_color=self.bg_color)],
             [sg.Text("Select Difficulty", justification='center', size=(1280, 3),
                      text_color=self.text_color, background_color=self.bg_color)],
@@ -105,7 +108,7 @@ class GUI:
              sg.Button("Insane", size=(15, 2), pad=((45, 45), (10, 10)),
                        button_color=(self.btn_text_color, self.btn_bg_color))],
             [sg.Button("Exit", size=(15, 2), pad=((538, 0), (50, 50)),
-                       button_color=(self.btn_text_color, self.btn_bg_color))],
+                       button_color=(self.btn_text_color, self.btn_bg_color1))],
 
         ]
 
@@ -188,7 +191,7 @@ class GUI:
             [sg.Button("Restart", size=(15, 2), pad=((538, 0), (0, 0)),
                        button_color=(self.btn_text_color, self.btn_bg_color))],
             [sg.Button("Exit", size=(15, 2), pad=((538, 0), (50, 50)),
-                       button_color=(self.btn_text_color, self.btn_bg_color))],
+                       button_color=(self.btn_text_color, self.btn_bg_color1))],
 
         ]
 
@@ -223,7 +226,7 @@ class GUI:
         return new_window
 
     def render_game_over_screen(self):
-        if int(self.user_score) >= 50:
+        if int(self.user_score) >= 75:
             self.end_text = "You Won"
         else:
             self.end_text = "Game Over"
@@ -248,12 +251,14 @@ class GUI:
                 game_over_window.close()
                 return True
 
+        #if restart:
+        #    self.render_initial_screen()
+
     def create_screen(self, choice):
         if choice == "START":
             self.render_initial_screen()
         elif choice == "GAME_OVER":
             self.render_game_over_screen()
-
 
 def main():
     the_GUI = GUI()
@@ -261,8 +266,8 @@ def main():
     chosen = 'Start'
     the_GUI.create_screen(choices[chosen])
 
-    Colors_light = ['#33cc33', '#0EFFE9', '#cc99ff', '#ffff66', '#ffb384', '#c2cbb8']
-    Colors_dark = ['#ff0000', '#990000', '#552b00', '#660033', '#552b00', '#FF0E83']
+    Colors_light = ['#0099CC', '#0EFFE9', '#cc99ff', '#ffff66', '#ffb384', '#c2cbb8']
+    Colors_dark = ['#009933', '#990000', '#552b00', '#660033', '#552b00', '#FF0E83']
     Difficulties = ['Easy', 'Intermediate', 'Insane', 'False Alarm', 'Not working', 'Useless indeed']
     line = {'Start': "Type CD & press enter to change selected difficulty.\n",
             'Game Over': "Type CS & press enter to change user score.\n"}
